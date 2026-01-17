@@ -1,7 +1,6 @@
-import { Prop, Schema } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-export type HotelDocument = Hotel & mongoose.Document;
+export type HotelDocument = Hotel & Document;
 
 @Schema()
 export class Hotel {
@@ -11,6 +10,11 @@ export class Hotel {
   @Prop()
   description: string;
 
-  @Prop({ required: true })
-  createdAt: mongoose.Date;
+  @Prop({ required: true, default: Date.now() })
+  createdAt: Date;
+
+  @Prop({ required: true, default: Date.now() })
+  updatedAt: Date;
 }
+
+export const HotelSchema = SchemaFactory.createForClass(Hotel);
