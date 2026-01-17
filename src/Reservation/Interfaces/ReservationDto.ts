@@ -1,0 +1,9 @@
+import { typeId } from '../../Users/Interfaces/param-id';
+
+export interface ReservationDto {
+  userId: typeId;
+  hotelId: typeId;
+  roomId: typeId;
+  dateStart: Date;
+  dateEnd: Date;
+}
