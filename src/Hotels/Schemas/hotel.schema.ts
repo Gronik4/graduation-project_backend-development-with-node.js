@@ -13,7 +13,7 @@ export class Hotel {
   @Prop({ required: true, default: Date.now() })
   createdAt: Date;
 
-  @Prop({ required: true, default: Date.now() })
+  @Prop({ required: true })
   updatedAt: Date;
 }
 

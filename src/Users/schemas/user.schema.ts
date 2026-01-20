@@ -17,7 +17,7 @@ export class User {
   contactPhone: string;
 
   @Prop({ required: true, default: 'client' })
-  role: string;
+  role: 'client' | 'admin' | 'manager';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

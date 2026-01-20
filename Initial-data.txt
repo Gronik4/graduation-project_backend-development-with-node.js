@@ -5,18 +5,3 @@
 администратор: admin-hotels
 пароль админа: R6UoKuXuY5mJXQM8
 
-Гостиницы:
-"title": "Рокко",
-"description": "Нижний Новгород, Пискунова, 41 • 500 м до центра",
-"createdAt": "",
-"updatedAt": "",
-
-"title": "Rest Home",
-"description": "Нижний Новгород, улица Большая Покровская, 7/10 Е • 300 м до центра",
-"createdAt": "",
-"updatedAt": "",
-
-"title": "Славия 3",
-"description": "Нижний Новгород, улица Варварская, д.10 Б • 400 м до центра",
-"createdAt": "",
-"updatedAt": "",

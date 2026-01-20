@@ -15,7 +15,9 @@ import { SeederModule } from './seeds/seeder/seeder.module';
 @Module({
   imports: [
     ConfigModule.forRoot(), // загружает .env автоматически из корня
-    MongooseModule.forRoot(links.UrlDb || 'mongodb://localhost:27017/book'),
+    MongooseModule.forRoot(
+      links.UrlDb || 'mongodb://localhost:27017/ClusterDPH',
+    ),
     UsersModule,
     HotelModule,
     HotelRoomModule,
