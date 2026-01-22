@@ -10,7 +10,6 @@ import { SupportRequestModule } from './SupportRequest/support-request/support-r
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { links } from 'project-config/links-config';
-import { SeederModule } from './seeds/seeder/seeder.module';
 
 @Module({
   imports: [
@@ -24,7 +23,6 @@ import { SeederModule } from './seeds/seeder/seeder.module';
     ReservationModule,
     MessageModule,
     SupportRequestModule,
-    SeederModule,
   ],
   controllers: [AppController],
   providers: [AppService],
