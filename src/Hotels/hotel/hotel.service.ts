@@ -33,20 +33,39 @@ export class HotelService implements IHotelService {
     return this.HotelModel.find().select('_id title description').exec();
   }
 
-  async findById(id: typeId): Promise<Hotel | null> {
-    return await this.HotelModel.findOne({ _id: id });
-  }
-
-  async search(params: SearchHotelParams): Promise<Hotel[] | null> {
-    return await this.HotelModel.findOne({ title: params.title });
-  }
-
-  async update(id: typeId, data: UpdateHotelParams): Promise<Hotel | null> {
-    const findHotel = await this.findById(id);
+  async findById(id: typeId): Promise<Hotel | string> {
+    const findHotel = await this.HotelModel.findOne({ _id: id })
+      .select('- __v')
+      .exec();
     if (findHotel) {
-      findHotel.title = data.title;
-      findHotel.description = data.description;
+      return findHotel;
+    } else {
+      return 'Нет гостиницы с таким id';
     }
-    return findHotel;
+  }
+
+  async search(params: SearchHotelParams): Promise<Hotel[] | string> {
+    let findHotels: Hotel[];
+    if (params.title) {
+      findHotels = await this.HotelModel.find(
+        (h: { title: string | string[] }) => h.title.includes(params.title),
+      );
+      return findHotels.slice(params.offset, params.offset + params.limit);
+    } else {
+      return 'По таким параметрам ни чего не найдено.';
+    }
+  }
+
+  async update(id: typeId, data: UpdateHotelParams): Promise<Hotel | string> {
+    const findHotel = await this.HotelModel.findByIdAndUpdate(id, data, {
+      new: true,
+    })
+      .select('- __v')
+      .exec();
+    if (findHotel) {
+      return findHotel;
+    } else {
+      return 'Обновление не выполнено. Нет гостиницы с таким id.';
+    }
   }
 }
