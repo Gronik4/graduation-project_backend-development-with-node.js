@@ -57,6 +57,7 @@ export class HotelService implements IHotelService {
   }
 
   async update(id: typeId, data: UpdateHotelParams): Promise<Hotel | string> {
+    data.updatedAt = Date.now();
     const findHotel = await this.HotelModel.findByIdAndUpdate(id, data, {
       new: true,
     })
