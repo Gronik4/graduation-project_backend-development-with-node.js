@@ -7,3 +7,14 @@ Hotels:
 
 "title": "Золотой Клевер "
 "description": "Нижний Новгород, Почаинская улица, 7, 700м до центра"
+
+Rooms:
+  "id": string,
+  "description": string,
+  "images": [string],
+  "isEnabled": boolean,
+  "hotel": {
+    "id": string,
+    "title": string,
+    "description": string
+  }

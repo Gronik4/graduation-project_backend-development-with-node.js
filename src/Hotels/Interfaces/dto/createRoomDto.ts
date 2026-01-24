@@ -4,5 +4,6 @@ export interface createRoomDto {
   hotel: typeId;
   description: string;
   images: string[];
+  createdAt: Date;
   isEnabled: boolean;
 }

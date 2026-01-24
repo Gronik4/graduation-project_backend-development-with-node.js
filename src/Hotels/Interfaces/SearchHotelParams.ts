@@ -1,5 +1,7 @@
 export interface SearchHotelParams {
   limit: number;
   offset: number;
-  title: string;
+  email: string;
+  name: string;
+  contactPhone: string;
 }

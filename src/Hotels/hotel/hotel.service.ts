@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Hotel, HotelDocument } from '../Schemas/hotel.schema';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { createHotelDto } from '../Interfaces/dto/createHotelDto';
 import { IHotelService } from '../Interfaces/IHotelService';
 import { typeId } from 'src/Users/Interfaces/param-id';
@@ -33,7 +33,7 @@ export class HotelService implements IHotelService {
     return this.HotelModel.find().select('_id title description').exec();
   }
 
-  async findById(id: typeId): Promise<Hotel | string> {
+  async findById(id: Types.ObjectId): Promise<Hotel | string> {
     const findHotel = await this.HotelModel.findOne({ _id: id })
       .select('- __v')
       .exec();
@@ -46,9 +46,9 @@ export class HotelService implements IHotelService {
 
   async search(params: SearchHotelParams): Promise<Hotel[] | string> {
     let findHotels: Hotel[];
-    if (params.title) {
+    if (params.name) {
       findHotels = await this.HotelModel.find(
-        (h: { title: string | string[] }) => h.title.includes(params.title),
+        (h: { title: string | string[] }) => h.title.includes(params.name),
       );
       return findHotels.slice(params.offset, params.offset + params.limit);
     } else {
