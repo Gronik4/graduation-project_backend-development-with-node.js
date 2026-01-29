@@ -4,5 +4,4 @@ export interface SearchUserParams {
   email: string;
   name: string;
   contactPhone: string;
-  role: 'client' | 'admin' | 'manager';
 }
