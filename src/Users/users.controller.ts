@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDocument } from './schemas/user.schema';
 import type { createUserDto } from './Interfaces/dto/createUserDto';
@@ -13,5 +14,8 @@ export class UsersController {
   }
 
   @Get('/admin/users/')
-  findAllUsers() {}
+  @Get('/manager/users/')
+  findAllUsers(@Query() SearchUserParams) {
+    return this.userSRV.findAll(SearchUserParams);
+  }
 }

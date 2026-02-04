@@ -31,9 +31,11 @@ export class UsersService implements IUserService {
     }
   }
 
-  async findById(id: typeId): Promise<User | null> {
+  async findById(id: typeId): Promise<UserDocument | null> {
     try {
-      const findUser = await this.UserModel.findById(id).select(this.fields);
+      const findUser = await this.UserModel.findById(id)
+        .select(this.fields)
+        .exec();
       return findUser;
     } catch (err) {
       throw err;
@@ -41,7 +43,9 @@ export class UsersService implements IUserService {
   }
   async findByEmail(email: string): Promise<User | null> {
     try {
-      const findUser = await this.UserModel.findOne({ email });
+      const findUser = await this.UserModel.findOne({ email })
+        .select(this.fields)
+        .exec();
       return findUser;
     } catch (err) {
       throw err;
@@ -56,14 +60,18 @@ export class UsersService implements IUserService {
           if (params.name) {
             const findOnName = await this.UserModel.find(
               (u: { name: string }) => u.name.includes(params.name),
-            ).select(this.fields);
+            )
+              .select(this.fields)
+              .exec();
             findUsers.push(...findOnName);
           }
         case 'email':
           if (params.email) {
             const findOnEmail = await this.UserModel.find(
               (u: { email: string }) => u.email.includes(params.email),
-            ).select(this.fields);
+            )
+              .select(this.fields)
+              .exec();
             findUsers.push(...findOnEmail);
           }
         case 'contactPhone':
@@ -71,15 +79,17 @@ export class UsersService implements IUserService {
             const findOnPhone = await this.UserModel.find(
               (u: { contactPhone: string }) =>
                 u.contactPhone.includes(params.contactPhone),
-            ).select(this.fields);
+            )
+              .select(this.fields)
+              .exec();
             findUsers.push(...findOnPhone);
           }
           break;
         default: {
           {
-            const findAllUsers = await this.UserModel.find().select(
-              this.fields,
-            );
+            const findAllUsers = await this.UserModel.find()
+              .select(this.fields)
+              .exec();
             findUsers.push(...findAllUsers);
           }
         }
