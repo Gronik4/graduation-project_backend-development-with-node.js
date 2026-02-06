@@ -1,12 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { UserSecret } from 'project-config/token_config';
+import { links } from 'project-config/links-config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.HTTP_PORT ?? 3000, () => {
-    console.log(`Server starting - on PORT: ${process.env.HTTP_PORT}`);
+  app.use(cookieParser());
+  app.use(
+    session({
+      secret: UserSecret.SeSSSct || 'notSecret',
+      resave: false,
+      saveUninitialized: false,
+      cookie: { secure: process.env.NODE_ENV === 'production' },
+    }),
+  );
+  await app.listen(links.Port ?? 3000, () => {
+    console.log(`Server starting - on PORT: ${links.Port}`);
   });
 }
 void bootstrap();

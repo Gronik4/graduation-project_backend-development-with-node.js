@@ -21,6 +21,7 @@ export class User {
 
   @Prop({ required: true, default: 'self' })
   createAt: 'self' | 'admin';
+  private _id: any;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

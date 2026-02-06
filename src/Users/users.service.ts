@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable no-fallthrough */
 /* eslint-disable no-useless-catch */
 import { Injectable } from '@nestjs/common';
@@ -8,24 +11,48 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { createUserDto } from './Interfaces/dto/createUserDto';
 import { IUserService } from './Interfaces/IUserService';
+import { generate } from 'generate-password';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService implements IUserService {
   fields: string;
+  newUser: any | null;
   constructor(
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
     @InjectConnection() private connection: Connection,
   ) {
     this.fields = '_id email name contactPhone createAt';
+    this.newUser = null;
   }
   async create(data: createUserDto): Promise<UserDocument | null> {
-    const user = new this.UserModel(data);
+    const updateUser = await this.findByEmail(data.email);
+    if (updateUser) {
+      const updUser = {
+        ...updateUser,
+        role: data.role,
+        createAt: data.createAT,
+      };
+      this.newUser = new this.UserModel(updUser);
+    } else {
+      /* Генерируем простой временный пароль клиента*/
+      const ClientTempPass = generate({
+        length: 7,
+        numbers: true,
+        uppercase: true,
+        lowercase: true,
+        strict: true,
+      });
+      const hashPass = await bcrypt.hash(ClientTempPass, 10);
+      const nextUser = { ...data, passwordHash: hashPass };
+      this.newUser = new this.UserModel(nextUser);
+    }
     try {
-      await user.save();
-      const findUser = await this.UserModel.findById({ _id: user._id })
-        .select('_id name email contactPhone role createAt')
+      await this.newUser.save();
+      const user = await this.UserModel.findById({ _id: data.id })
+        .select('- __v')
         .exec();
-      return findUser;
+      return user;
     } catch (err) {
       throw err;
     }
@@ -44,7 +71,7 @@ export class UsersService implements IUserService {
   async findByEmail(email: string): Promise<User | null> {
     try {
       const findUser = await this.UserModel.findOne({ email })
-        .select(this.fields)
+        .select('_id email passwordHash name contactPhone createAt')
         .exec();
       return findUser;
     } catch (err) {

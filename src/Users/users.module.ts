@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schemas/user.schema';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -12,9 +13,9 @@ import { UsersService } from './users.service';
         schema: UserSchema,
       },
     ]),
+    PassportModule.register({ session: true }),
   ],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService],
 })
 export class UsersModule {}
