@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -22,18 +24,17 @@ export class UsersService implements IUserService {
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
     @InjectConnection() private connection: Connection,
   ) {
-    this.fields = '_id email name contactPhone createAt';
+    this.fields = '_id email name contactPhone role';
     this.newUser = null;
   }
   async create(data: createUserDto): Promise<UserDocument | null> {
-    const updateUser = await this.findByEmail(data.email);
+    const updateUser = await this.UserModel.findOne({ email: data.email });
+    let updData = {};
     if (updateUser) {
-      const updUser = {
-        ...updateUser,
+      updData = {
         role: data.role,
-        createAt: data.createAT,
+        whoCreate: data.whoCreate,
       };
-      this.newUser = new this.UserModel(updUser);
     } else {
       /* Генерируем простой временный пароль клиента*/
       const ClientTempPass = generate({
@@ -48,9 +49,16 @@ export class UsersService implements IUserService {
       this.newUser = new this.UserModel(nextUser);
     }
     try {
-      await this.newUser.save();
-      const user = await this.UserModel.findById({ _id: data.id })
-        .select('- __v')
+      this.newUser
+        ? await this.newUser.save()
+        : await this.UserModel.findByIdAndUpdate(
+            { _id: updateUser?.id },
+            updData,
+            { new: true },
+          );
+      const id = this.newUser ? this.newUser._id : updateUser?._id;
+      const user = await this.UserModel.findById({ _id: id })
+        .select(this.fields)
         .exec();
       return user;
     } catch (err) {
@@ -71,7 +79,7 @@ export class UsersService implements IUserService {
   async findByEmail(email: string): Promise<User | null> {
     try {
       const findUser = await this.UserModel.findOne({ email })
-        .select('_id email passwordHash name contactPhone createAt')
+        .select('_id email passwordHash name contactPhone whoCreate')
         .exec();
       return findUser;
     } catch (err) {
@@ -85,40 +93,36 @@ export class UsersService implements IUserService {
       switch (key) {
         case 'name':
           if (params.name) {
-            const findOnName = await this.UserModel.find(
-              (u: { name: string }) => u.name.includes(params.name),
-            )
-              .select(this.fields)
-              .exec();
+            console.log(`From params.name: ${params.name}`);
+            const findOnName = await this.UserModel.find({
+              name: { $regex: params.name },
+            }).select(this.fields);
             findUsers.push(...findOnName);
-          }
+            console.log(findUsers);
+          } else console.log('Name - empty');
         case 'email':
           if (params.email) {
-            const findOnEmail = await this.UserModel.find(
-              (u: { email: string }) => u.email.includes(params.email),
-            )
-              .select(this.fields)
-              .exec();
+            console.log(`params.email: ${params.email}`);
+            const findOnEmail = await this.UserModel.find({
+              email: { $regex: params.email },
+            }).select(this.fields);
             findUsers.push(...findOnEmail);
-          }
+            console.log(findUsers);
+          } else console.log('Email - empty');
         case 'contactPhone':
           if (params.contactPhone) {
-            const findOnPhone = await this.UserModel.find(
-              (u: { contactPhone: string }) =>
-                u.contactPhone.includes(params.contactPhone),
-            )
-              .select(this.fields)
-              .exec();
+            console.log(params.contactPhone);
+            const findOnPhone = await this.UserModel.find({
+              contactPhone: { $regex: params.contactPhone },
+            }).select(this.fields);
             findUsers.push(...findOnPhone);
-          }
+          } else console.log('contactPhone - empty');
           break;
         default: {
-          {
-            const findAllUsers = await this.UserModel.find()
-              .select(this.fields)
-              .exec();
-            findUsers.push(...findAllUsers);
-          }
+          const findAllUsers = await this.UserModel.find().select(this.fields);
+          findUsers.push(...findAllUsers);
+          console.log('findUsers from default:');
+          console.log(findUsers);
         }
       }
     }

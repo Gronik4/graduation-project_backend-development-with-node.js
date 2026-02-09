@@ -20,8 +20,7 @@ export class User {
   role: 'client' | 'admin' | 'manager';
 
   @Prop({ required: true, default: 'self' })
-  createAt: 'self' | 'admin';
-  private _id: any;
+  whoCreate: 'self' | 'admin';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

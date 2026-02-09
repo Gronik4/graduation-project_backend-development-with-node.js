@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDocument } from 'src/Users/schemas/user.schema';
 import type { createUserDto } from 'src/Users/Interfaces/dto/createUserDto';
@@ -13,11 +13,11 @@ export class AuthController {
     return this.authSrv.register(data);
   }
 
-  @Get('/auth/login')
+  @Post('/auth/login')
   loginUser(@Query() data: LoginAuthDto): Promise<object | string> {
     return this.authSrv.login(data);
   }
 
-  @Get('/auth/logout')
+  @Post('/auth/logout')
   LoguotUser() {}
 }
