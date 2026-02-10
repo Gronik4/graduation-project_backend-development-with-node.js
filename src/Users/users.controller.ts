@@ -14,8 +14,21 @@ export class UsersController {
   }
 
   @Get('/admin/users/')
-  @Get('/manager/users/')
-  findAllUsers(@Query() params: SearchUserParams) {
+  findAllForAdmin(@Query() params: SearchUserParams) {
     return this.userSRV.findAll(params);
   }
+
+  @Get('/manager/users/')
+  findAllforManager(@Query() params: SearchUserParams) {
+    return this.userSRV.findAll(params);
+  }
+  /**Если сделать так:
+   * @Get('/admin/users/')
+   * @Get('/manager/users/')
+    findAllforManager(@Query() params: SearchUserParams) {
+    return this.userSRV.findAll(params);
+  }
+    Второй роут не работает, так как NestJS не может понять, какой метод использовать для обработки запроса. 
+    Поэтому нужно создавать отдельные методы для каждого роута, даже если они выполняют одну и ту же функцию.
+   */
 }

@@ -3,7 +3,6 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable no-fallthrough */
 /* eslint-disable no-useless-catch */
 import { Injectable } from '@nestjs/common';
 import { typeId } from './Interfaces/param-id';
@@ -87,45 +86,48 @@ export class UsersService implements IUserService {
     }
   }
 
-  async findAll(params: SearchUserParams): Promise<User[] | null> {
+  async findAll(params: SearchUserParams): Promise<User[] | string> {
     const findUsers: User[] = [];
-    for (const key in params) {
-      switch (key) {
-        case 'name':
-          if (params.name) {
-            console.log(`From params.name: ${params.name}`);
-            const findOnName = await this.UserModel.find({
-              name: { $regex: params.name },
-            }).select(this.fields);
-            findUsers.push(...findOnName);
-            console.log(findUsers);
-          } else console.log('Name - empty');
-        case 'email':
-          if (params.email) {
-            console.log(`params.email: ${params.email}`);
-            const findOnEmail = await this.UserModel.find({
-              email: { $regex: params.email },
-            }).select(this.fields);
-            findUsers.push(...findOnEmail);
-            console.log(findUsers);
-          } else console.log('Email - empty');
-        case 'contactPhone':
-          if (params.contactPhone) {
-            console.log(params.contactPhone);
-            const findOnPhone = await this.UserModel.find({
-              contactPhone: { $regex: params.contactPhone },
-            }).select(this.fields);
-            findUsers.push(...findOnPhone);
-          } else console.log('contactPhone - empty');
-          break;
-        default: {
-          const findAllUsers = await this.UserModel.find().select(this.fields);
-          findUsers.push(...findAllUsers);
-          console.log('findUsers from default:');
-          console.log(findUsers);
-        }
+    if (params.name) {
+      const findOnName = await this.UserModel.find({
+        name: { $regex: params.name },
+      }).select(this.fields);
+      if (findOnName.length != 0) {
+        findUsers.push(...findOnName);
       }
     }
-    return findUsers.slice(params.offset, params.offset + params.limit);
+
+    if (params.email) {
+      const findOnEmail = await this.UserModel.find({
+        email: { $regex: params.email },
+      }).select(this.fields);
+      if (findOnEmail.length != 0) {
+        const merge = findOnEmail.filter(
+          (item2) => !findUsers.some((item1) => item1.email === item2.email),
+        );
+        findUsers.push(...merge);
+      }
+    }
+
+    if (params.contactPhone) {
+      const findOnContactPhone = await this.UserModel.find({
+        contactPhone: { $regex: params.contactPhone },
+      }).select(this.fields);
+      if (findOnContactPhone.length != 0) {
+        const merge = findOnContactPhone.filter(
+          (item2) =>
+            !findUsers.some(
+              (item1) => item1.contactPhone === item2.contactPhone,
+            ),
+        );
+        findUsers.push(...merge);
+      }
+    }
+
+    if (findUsers.length === 0) {
+      return 'Ни по одному полю совпадений не найдено';
+    } else {
+      return findUsers.slice(params.offset, params.offset + params.limit);
+    }
   }
 }

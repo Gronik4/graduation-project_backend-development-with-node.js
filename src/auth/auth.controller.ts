@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Query } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import {
+  Body,
+  Controller,
+  Post,
+  Query,
+  Request,
+  Response,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDocument } from 'src/Users/schemas/user.schema';
 import type { createUserDto } from 'src/Users/Interfaces/dto/createUserDto';
@@ -19,5 +28,7 @@ export class AuthController {
   }
 
   @Post('/auth/logout')
-  LoguotUser() {}
+  async LogoutUser(@Request() req, @Response() res): Promise<void> {
+    await res.clearCookie('access_token');
+  }
 }

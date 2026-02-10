@@ -6,5 +6,5 @@ export interface IUserService {
   create(data: Partial<User>): Promise<User | null>;
   findById(id: typeId): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
-  findAll(params: SearchUserParams): Promise<User[] | null>;
+  findAll(params: SearchUserParams): Promise<User[] | string>;
 }

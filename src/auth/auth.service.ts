@@ -52,8 +52,6 @@ export class AuthService {
     return 'Staus Code 401. Пользователя с указанным email не существует или пароль неверный.';
   }
 
-  async logout() {}
-
   async validateUser(data: LoginAuthDto): Promise<User | null> {
     const user = await this.UserSRV.findByEmail(data.email);
     if (!user || !(await bcrypt.compare(data.password, user.passwordHash))) {
