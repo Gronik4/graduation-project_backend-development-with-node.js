@@ -1,9 +1,9 @@
-import { typeId } from 'src/Users/Interfaces/param-id';
+import { Types } from 'mongoose';
 
 export interface createRoomDto {
-  hotel: typeId;
+  hotel: Types.ObjectId;
   description: string;
-  images: string[];
+  images: string[] | File[];
   createdAt: Date;
   isEnabled: boolean;
 }
