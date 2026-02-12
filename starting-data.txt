@@ -18,3 +18,17 @@ Rooms:
     "title": string,
     "description": string
   }
+
+createRoomDto:
+  hotel: 6973386a15485b3b984512b6;
+  description: Двухместный номер Business;
+  images: prime1.jpeg;
+
+  From HotelRoomService, create method, room:
+{
+  hotel: '6973386a15485b3b984512b6',
+  description: 'Двухместный номер Business',
+  images: [ 'imgStorage/prime1.jpeg', 'imgStorage/prime2.jpeg' ],
+  createdAt: 2026-02-12T16:52:10.083Z,
+  _id: new ObjectId('698e05472d264b6d1b95e890')
+}

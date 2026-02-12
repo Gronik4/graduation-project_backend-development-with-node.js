@@ -4,6 +4,4 @@ export interface createRoomDto {
   hotel: Types.ObjectId;
   description: string;
   images: string[] | File[];
-  createdAt: Date;
-  isEnabled: boolean;
 }

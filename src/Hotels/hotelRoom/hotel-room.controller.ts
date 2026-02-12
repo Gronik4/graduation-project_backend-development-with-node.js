@@ -9,6 +9,7 @@ import {
 import { HotelRoomService } from './hotel-room.service';
 import type { createRoomDto } from '../Interfaces/dto/createRoomDto';
 import { RoomFilesInterceptor } from '../interseptors/roomFilesInterseptor';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('/api')
 export class HotelRoomController {
@@ -21,9 +22,9 @@ export class HotelRoomController {
   getHotelRoom() {}
 
   @Post('/admin/hotel-rooms')
-  @UseInterceptors(RoomFilesInterceptor)
+  @UseInterceptors(AnyFilesInterceptor(), RoomFilesInterceptor)
   createHotelRoom(@Body() body: createRoomDto) {
-    console.log(body);
+    return this.hotelRSV.create(body);
   }
 
   @Put('/admin/hotel-rooms/:id')

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -8,34 +10,50 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { createRoomDto } from '../Interfaces/dto/createRoomDto';
 import { HotelService } from '../hotel/hotel.service';
-//import { title } from 'process';
+import path from 'path';
+import fs from 'fs';
 
 @Injectable()
 export class RoomFilesInterceptor implements NestInterceptor {
   allowedTypes: string[];
+  dir: string;
   constructor(private readonly HlServise: HotelService) {
-    this.allowedTypes = ['image/png', 'image/jpg', 'application/pdf']; // Разрешенные типы файлов
+    this.allowedTypes = [
+      'image/png',
+      'image/jpg',
+      'image/jpeg',
+      'application/pdf',
+    ]; // Разрешенные типы файлов
+    this.dir = 'imgStorage';
   }
+
   intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
   ): Observable<any> {
-    const request = context.switchToHttp().getRequest();
-    const originalData = request.body as createRoomDto; // Перехват тела запроса
-    //const hotel = await this.HlServise.findById(originalData.hotel)[title];
-    //const uploadDir = `../../imgStorage/${hotel}`;
-    originalData.images.forEach((el) => {
-      if (typeof el != 'string') {
-        if (!this.fileFilter(el))
-          return next.handle().pipe(map(() => 'Недопустимый тип файла.'));
+    const request = context.switchToHttp().getRequest(); // Перехват тела запроса
+    if (!request.files || !Array.isArray(request.files))
+      return next.handle().pipe(map(() => 'Не передано ни одного файла.'));
+    for (const file of request.files) {
+      if (typeof file === 'string') return next.handle();
+      if (!this.fileFilter(file.mimetype)) {
+        return next.handle().pipe(map(() => 'Недопустимый тип файла.'));
       }
-    });
-    return next.handle().pipe(map(() => originalData)); // Дописать!!!!
+      const filePath = path.join(this.dir, file.originalname);
+      fs.writeFileSync(filePath, file.buffer);
+    }
+    const newBody = { ...request.body };
+    newBody.images = [];
+    for (const file of request.files) {
+      if (typeof file === 'string') return next.handle();
+      newBody.images.push(`${this.dir}/${file.originalname}`);
+    }
+    request.body = newBody;
+    return next.handle().pipe(map((data) => data));
   }
 
-  fileFilter(file: File): boolean {
-    return this.allowedTypes.includes(file.type) ? true : false;
+  fileFilter(mimeType: string): boolean {
+    return this.allowedTypes.includes(mimeType) ? true : false;
   }
 }

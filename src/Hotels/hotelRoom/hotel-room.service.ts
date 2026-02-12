@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable no-useless-catch */
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
@@ -19,19 +17,32 @@ export class HotelRoomService {
 
   async create(data: createRoomDto): Promise<Partial<ShowRoomData> | null> {
     const room = new this.HotelRoom(data);
-    let outRoom;
     try {
       await room.save();
-      const findRoom = await this.HotelRoom.findOne({ _id: room._id })
-        .select('- __v')
+      return this.findById(String(room._id));
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async findById(id: string): Promise<Partial<ShowRoomData> | null> {
+    let outRoom: Partial<ShowRoomData> | null = null;
+    try {
+      const findRoom = await this.HotelRoom.findOne({ _id: id })
+        .select('-__v')
         .exec();
       if (findRoom) {
-        const findHotel = this.HlServise.findById(room.hotel);
+        const findHotel = await this.HlServise.findById(findRoom.hotel);
         outRoom = {
-          ...findRoom,
-          hotel: {
-            ...findHotel,
-          },
+          ...findRoom.toObject(),
+          hotel:
+            typeof findHotel === 'object' && findHotel
+              ? {
+                  id: String(findHotel.id),
+                  title: findHotel.title,
+                  description: findHotel.description,
+                }
+              : undefined,
         };
       }
       return outRoom;

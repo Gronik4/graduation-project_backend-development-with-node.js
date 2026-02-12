@@ -35,7 +35,7 @@ export class HotelService implements IHotelService {
 
   async findById(id: Types.ObjectId): Promise<Hotel | string> {
     const findHotel = await this.HotelModel.findOne({ _id: id })
-      .select('- __v')
+      .select('-__v')
       .exec();
     if (findHotel) {
       return findHotel;
@@ -61,7 +61,7 @@ export class HotelService implements IHotelService {
     const findHotel = await this.HotelModel.findByIdAndUpdate(id, data, {
       new: true,
     })
-      .select('- __v')
+      .select('-__v')
       .exec();
     if (findHotel) {
       return findHotel;

@@ -21,7 +21,7 @@ export class HotelRoom {
   @Prop()
   updatedAt: Date;
 
-  @Prop({ required: true, default: true })
+  @Prop()
   isEnabled: boolean;
 }
 
