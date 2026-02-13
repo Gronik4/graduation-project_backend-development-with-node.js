@@ -6,6 +6,7 @@ import { Connection, Model } from 'mongoose';
 import { createRoomDto } from '../Interfaces/dto/createRoomDto';
 import { ShowRoomData } from '../Interfaces/ShowRoomData';
 import { HotelService } from '../hotel/hotel.service';
+import { updateRoomDto } from '../Interfaces/dto/updateRoomDto';
 
 @Injectable()
 export class HotelRoomService {
@@ -14,7 +15,7 @@ export class HotelRoomService {
     @InjectConnection() private connection: Connection,
     private readonly HlServise: HotelService,
   ) {}
-
+  /**Метод проверен */
   async create(data: createRoomDto): Promise<Partial<ShowRoomData> | null> {
     const room = new this.HotelRoom(data);
     try {
@@ -24,7 +25,7 @@ export class HotelRoomService {
       throw err;
     }
   }
-
+  /**Метод проверен */
   async findById(id: string): Promise<Partial<ShowRoomData> | null> {
     let outRoom: Partial<ShowRoomData> | null = null;
     try {
@@ -48,6 +49,21 @@ export class HotelRoomService {
       return outRoom;
     } catch (err) {
       throw err;
+    }
+  }
+  /**Метод проверен */
+  async update(
+    id: string,
+    data: updateRoomDto,
+  ): Promise<Partial<ShowRoomData> | null | string> {
+    data.updatedAt = new Date();
+    const updatedRoom = await this.HotelRoom.findByIdAndUpdate(id, data, {
+      new: true,
+    });
+    if (updatedRoom) {
+      return this.findById(id);
+    } else {
+      return null;
     }
   }
 }

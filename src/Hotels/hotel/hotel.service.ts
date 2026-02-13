@@ -15,7 +15,7 @@ export class HotelService implements IHotelService {
     @InjectModel(Hotel.name) private HotelModel: Model<HotelDocument>,
     @InjectConnection() private connection: Connection,
   ) {}
-
+  /**Метод проверен */
   async create(data: createHotelDto): Promise<Partial<HotelDocument> | null> {
     const hotel = new this.HotelModel(data);
     try {
@@ -28,11 +28,11 @@ export class HotelService implements IHotelService {
       throw err;
     }
   }
-
+  /**Метод проверен */
   async getAllHotels(): Promise<Partial<HotelDocument>[]> {
     return this.HotelModel.find().select('_id title description').exec();
   }
-
+  /**Метод проверен */
   async findById(id: Types.ObjectId): Promise<Hotel | string> {
     const findHotel = await this.HotelModel.findOne({ _id: id })
       .select('-__v')
@@ -43,22 +43,25 @@ export class HotelService implements IHotelService {
       return 'Нет гостиницы с таким id';
     }
   }
-
+  /**Метод проверен */
   async search(params: SearchHotelParams): Promise<Hotel[] | string> {
     let findHotels: Hotel[];
-    if (params.name) {
-      findHotels = await this.HotelModel.find(
-        (h: { title: string | string[] }) => h.title.includes(params.name),
-      );
-      return findHotels.slice(params.offset, params.offset + params.limit);
+    if (params.title) {
+      findHotels = await this.HotelModel.find({
+        title: { $regex: params.title, $options: 'i' },
+      }).select('-__v');
+      return findHotels.length > 0
+        ? findHotels.slice(params.offset, params.offset + params.limit)
+        : 'Гостиницы с такими параметрами не найдены.';
     } else {
-      return 'По таким параметрам ни чего не найдено.';
+      return 'Поля поиска не заполнены.';
     }
   }
-
+  /**Метод проверен */
   async update(id: typeId, data: UpdateHotelParams): Promise<Hotel | string> {
     data.updatedAt = Date.now();
-    const findHotel = await this.HotelModel.findByIdAndUpdate(id, data, {
+    const findHotel = await this.HotelModel.findByIdAndUpdate(id.id, data, {
+      // id.id - так как id приходит в виде объекта {id: 'значение'}, а нужно string!!
       new: true,
     })
       .select('-__v')

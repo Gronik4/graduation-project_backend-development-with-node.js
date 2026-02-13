@@ -20,11 +20,12 @@ export class RoomFilesInterceptor implements NestInterceptor {
   dir: string;
   constructor(private readonly HlServise: HotelService) {
     this.allowedTypes = [
+      // Разрешенные типы файлов
       'image/png',
       'image/jpg',
       'image/jpeg',
       'application/pdf',
-    ]; // Разрешенные типы файлов
+    ];
     this.dir = 'imgStorage';
   }
 
@@ -44,7 +45,7 @@ export class RoomFilesInterceptor implements NestInterceptor {
       fs.writeFileSync(filePath, file.buffer);
     }
     const newBody = { ...request.body };
-    newBody.images = [];
+    if (!newBody.images) newBody.images = [];
     for (const file of request.files) {
       if (typeof file === 'string') return next.handle();
       newBody.images.push(`${this.dir}/${file.originalname}`);

@@ -10,22 +10,22 @@ import type { typeId } from 'src/Users/Interfaces/param-id';
 export class HotelController {
   constructor(private readonly hotelHSV: HotelService) {}
 
-  @Post('/admin/hotels/')
+  @Post('/admin/hotels/') // Метод проверен
   create(@Body() body: createHotelDto): Promise<Partial<HotelDocument> | null> {
     return this.hotelHSV.create(body);
   }
 
-  @Get('/admin/hotels/all/')
+  @Get('/admin/hotels/all/') // Метод проверен
   getAllHotels(): Promise<Partial<HotelDocument>[]> {
     return this.hotelHSV.getAllHotels();
   }
 
-  @Get('/admin/hotels')
+  @Get('/admin/hotels') // Метод проверен
   searchHotel(@Query() SearchHotelParams) {
     return this.hotelHSV.search(SearchHotelParams);
   }
 
-  @Put('/admin/hotels/:id')
+  @Put('/admin/hotels/:id') // Метод проверен
   updateHotel(@Param() id: typeId, @Body() body: UpdateHotelParams) {
     return this.hotelHSV.update(id, body);
   }

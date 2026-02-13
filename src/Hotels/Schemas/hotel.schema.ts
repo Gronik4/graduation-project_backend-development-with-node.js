@@ -14,10 +14,10 @@ export class Hotel {
   description: string;
 
   @Prop({ required: true, default: Date.now() })
-  createdAt: string;
+  createdAt: Date;
 
   @Prop()
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export const HotelSchema = SchemaFactory.createForClass(Hotel);
