@@ -21,8 +21,8 @@ export class HotelController {
   }
 
   @Get('/admin/hotels') // Метод проверен
-  searchHotel(@Query() SearchHotelParams) {
-    return this.hotelHSV.search(SearchHotelParams);
+  searchHotel(@Query() params) {
+    return this.hotelHSV.search(params);
   }
 
   @Put('/admin/hotels/:id') // Метод проверен

@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseInterceptors,
 } from '@nestjs/common';
 import { HotelRoomService } from './hotel-room.service';
@@ -12,16 +13,22 @@ import type { createRoomDto } from '../Interfaces/dto/createRoomDto';
 import { RoomFilesInterceptor } from '../interseptors/roomFilesInterseptor';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import type { updateRoomDto } from '../Interfaces/dto/updateRoomDto';
+import type { SearchRoomsParams } from '../Interfaces/SearchRoomsParams';
 
 @Controller('/api')
 export class HotelRoomController {
   constructor(private readonly hotelRSV: HotelRoomService) {}
 
-  @Get('/common/hotel-rooms')
-  getAllHotelRooms() {}
+  @Get('/common/hotel-rooms') // Метод проверен
+  getAllHotelRooms(@Query() body: SearchRoomsParams) {
+    return this.hotelRSV.search(body);
+  }
 
-  @Get('/common/hotel-rooms/:id')
-  getHotelRoom() {}
+  @Get('/common/hotel-rooms/:id') // Метод проверен
+  getHotelRoom(@Param('id') id: string) {
+    console.log(`From hotel-room controller id: ${id}`);
+    return this.hotelRSV.findById({ id });
+  }
 
   @Post('/admin/hotel-rooms') // Метод проверен
   @UseInterceptors(AnyFilesInterceptor(), RoomFilesInterceptor)

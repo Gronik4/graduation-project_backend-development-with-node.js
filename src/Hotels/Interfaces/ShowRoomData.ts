@@ -1,6 +1,8 @@
+import { typeId } from 'src/Users/Interfaces/param-id';
+
 export interface ShowRoomData {
   outRoom: string[] & HTMLCollectionOf<HTMLImageElement>;
-  id: string;
+  id: typeId;
   description: string;
   images: string[];
   isEnabled: boolean;

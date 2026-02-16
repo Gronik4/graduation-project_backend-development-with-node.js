@@ -11,8 +11,9 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { HotelService } from '../hotel/hotel.service';
-import path from 'path';
+import { join } from 'path';
 import fs from 'fs';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class RoomFilesInterceptor implements NestInterceptor {
@@ -41,11 +42,17 @@ export class RoomFilesInterceptor implements NestInterceptor {
       if (!this.fileFilter(file.mimetype)) {
         return next.handle().pipe(map(() => 'Недопустимый тип файла.'));
       }
-      const filePath = path.join(this.dir, file.originalname);
-      fs.writeFileSync(filePath, file.buffer);
+      void this.saveImageStorage(file).then((data) => {
+        file.originalname = data;
+        console.log(`Saved file in then: ${file.originalname}`);
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        console.log(`Saved data: ${data}`);
+      }); // При необходимлсти переимновываем файл уникальным именем и сохраняем его в папку imgStorage.
+      console.log(`Saved file: ${file.originalname}`);
     }
     const newBody = { ...request.body };
     if (!newBody.images) newBody.images = [];
+    if (typeof newBody.images === 'string') newBody.images = [newBody.images]; // Если images - строка, преобразуем в массив
     for (const file of request.files) {
       if (typeof file === 'string') return next.handle();
       newBody.images.push(`${this.dir}/${file.originalname}`);
@@ -56,5 +63,30 @@ export class RoomFilesInterceptor implements NestInterceptor {
 
   fileFilter(mimeType: string): boolean {
     return this.allowedTypes.includes(mimeType) ? true : false;
+  }
+
+  async saveImageStorage(file): Promise<void> {
+    try {
+      /**Генерация уникального имени файла - можно раскомментировать и использовать при необходимости
+       * функция writeFile() - не записывает файл, если он уже существует, поэтому при генерации уникального имени файла с помощью nanoid,
+       *  файлы будут записываться каждый раз с новым именем, т.к. имя файла будет уникальным, и функция writeFile() будет создавать новый файл,
+       *  а не перезаписывать существующий в случае использования функции saveImageStorage() в методе update().
+       */
+      //file.originalname = `${nanoid(5)}_${file.originalname}`;
+      const storFiles = await fs.promises.readdir(
+        join(process.cwd(), this.dir),
+      );
+      if (!storFiles.includes(file.originalname))
+        /**
+         *  Если файл с таким именем уже существует, значит используется метод update(), и нужно перезаписать существующий файл.
+         *  В противном случае, используется метод create(), и нужно сохранить файл с уникальным именем, сгенерированным с помощью nanoid.
+         */
+        file.originalname = `${nanoid(5)}_${file.originalname}`;
+      //const filePath = path.join(dir, file.originalname);
+      //await fs.promises.writeFile(filePath, file.buffer);
+    } catch (err) {
+      console.error('Ошибка при сохранении файла:', err);
+    }
+    return file.originalname;
   }
 }

@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
 
 export interface typeId {
-  id: string | ObjectId | undefined;
+  id?: ObjectId | string;
 }

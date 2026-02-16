@@ -1,7 +1,7 @@
-import { Types } from 'mongoose';
+import { typeId } from 'src/Users/Interfaces/param-id';
 
 export interface createRoomDto {
-  hotel: Types.ObjectId;
+  hotel: typeId;
   description: string;
   images: string[] | File[];
 }
