@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-catch */
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Hotel, HotelDocument } from '../Schemas/hotel.schema';
 import { Connection, Model, Types } from 'mongoose';
@@ -40,7 +40,7 @@ export class HotelService implements IHotelService {
     if (findHotel) {
       return findHotel;
     } else {
-      return 'Нет гостиницы с таким id';
+      throw new HttpException('Нет гостиницы с таким id', 404);
     }
   }
   /**Метод проверен */

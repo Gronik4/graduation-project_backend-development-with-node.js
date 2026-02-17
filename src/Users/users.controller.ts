@@ -8,7 +8,7 @@ import type { SearchUserParams } from './Interfaces/SearchUserParams';
 export class UsersController {
   constructor(private readonly userSRV: UsersService) {}
 
-  @Post('/admin/users/')
+  @Post('/admin/users/') //Метод проверен
   create(@Body() body: createUserDto): Promise<Partial<UserDocument> | null> {
     return this.userSRV.create(body);
   }

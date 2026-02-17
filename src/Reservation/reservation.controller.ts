@@ -1,4 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import type { ReservationDto } from './Interfaces/ReservationDto';
+import { ReservationDocument } from './schemas/reservation.schema';
+import { ReservationService } from './reservation.service';
 
-@Controller('reservation')
-export class ReservationController {}
+@Controller('/api')
+export class ReservationController {
+  constructor(private readonly RrnService: ReservationService) {}
+
+  @Post('/client/reservations')
+  reserve(@Body() data: ReservationDto): Promise<string | ReservationDocument> {
+    return this.RrnService.addReservation(data);
+  }
+}
