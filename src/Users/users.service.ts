@@ -14,6 +14,7 @@ import { createUserDto } from './Interfaces/dto/createUserDto';
 import { IUserService } from './Interfaces/IUserService';
 import { generate } from 'generate-password';
 import * as bcrypt from 'bcrypt';
+import { UserFilters } from './Interfaces/userFilters';
 
 @Injectable()
 export class UsersService implements IUserService {
@@ -85,48 +86,40 @@ export class UsersService implements IUserService {
       throw err;
     }
   }
+  /*Метод проверен */
+  async findAll(params: SearchUserParams): Promise<UserDocument[] | string> {
+    const filters: UserFilters = {};
+    const findUsers: UserDocument[] = [];
+    if (params.name) filters.name = { $regex: params.name, $options: 'i' };
+    if (params.email) filters.email = { $regex: params.email, $options: 'i' };
+    if (params.contactPhone)
+      filters.contactPhone = { $regex: params.contactPhone };
 
-  async findAll(params: SearchUserParams): Promise<User[] | string> {
-    const findUsers: User[] = [];
-    if (params.name) {
-      const findOnName = await this.UserModel.find({
-        name: { $regex: params.name },
-      }).select(this.fields);
-      if (findOnName.length != 0) {
-        findUsers.push(...findOnName);
-      }
-    }
-
-    if (params.email) {
-      const findOnEmail = await this.UserModel.find({
-        email: { $regex: params.email },
-      }).select(this.fields);
-      if (findOnEmail.length != 0) {
-        const merge = findOnEmail.filter(
-          (item2) => !findUsers.some((item1) => item1.email === item2.email),
-        );
-        findUsers.push(...merge);
-      }
-    }
-
-    if (params.contactPhone) {
-      const findOnContactPhone = await this.UserModel.find({
-        contactPhone: { $regex: params.contactPhone },
-      }).select(this.fields);
-      if (findOnContactPhone.length != 0) {
-        const merge = findOnContactPhone.filter(
-          (item2) =>
-            !findUsers.some(
-              (item1) => item1.contactPhone === item2.contactPhone,
-            ),
-        );
-        findUsers.push(...merge);
-      }
-    }
-
-    if (findUsers.length === 0) {
+    if (Object.keys(filters).length === 0) {
       return 'Ни по одному полю совпадений не найдено';
     } else {
+      /**
+       * return this.UserModel.find(filters)
+        .limit(params.limit)
+        .skip(params.offset)
+        .select(this.fields)
+        .exec();
+        Так не работает! Выдает пустой массив!!
+        Т.К. Один запрос со всеми фильтрами (MongoDB по умолчанию использует логику И).
+       */
+      let value: object;
+      for (value of Object.entries(filters)) {
+        const found = await this.UserModel.find({ [value[0]]: value[1] })
+          .select(this.fields)
+          .exec();
+        console.log(found);
+        if (found.length != 0) {
+          const merge = found.filter(
+            (item2) => !findUsers.some((item1) => item1.email === item2.email),
+          );
+          findUsers.push(...merge);
+        }
+      }
       return findUsers.slice(params.offset, params.offset + params.limit);
     }
   }

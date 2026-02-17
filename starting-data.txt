@@ -32,3 +32,40 @@ createRoomDto:
   createdAt: 2026-02-12T16:52:10.083Z,
   _id: new ObjectId('698e05472d264b6d1b95e890')
 }
+
+async findAll(params: SearchUserParams): Promise<UserDocument[] | string> {
+    const filters: UserFilters = {};
+    const findUsers: UserDocument[] = [];
+    if (params.name) filters.name = { $regex: params.name, $options: 'i' };
+    if (params.email) filters.email = { $regex: params.email, $options: 'i' };
+    if (params.contactPhone)
+      filters.contactPhone = { $regex: params.contactPhone };
+
+    if (Object.keys(filters).length === 0) {
+      return 'Ни по одному полю совпадений не найдено';
+    } else {
+      /**
+       * return this.UserModel.find(filters)
+        .limit(params.limit)
+        .skip(params.offset)
+        .select(this.fields)
+        .exec();
+        Так не работает! Выдает пустой массив!!
+        Т.К. Один запрос со всеми фильтрами (MongoDB по умолчанию использует логику И).
+       */
+      let value: object;
+      for (value of Object.entries(filters)) {
+        const found = await this.UserModel.find({ [value[0]]: value[1] })
+          .select(this.fields)
+          .exec();
+        console.log(found);
+        if (found.length != 0) {
+          const merge = found.filter(
+            (item2) => !findUsers.some((item1) => item1.email === item2.email),
+          );
+          findUsers.push(...merge);
+        }
+      }
+      return findUsers;
+    }
+  }
