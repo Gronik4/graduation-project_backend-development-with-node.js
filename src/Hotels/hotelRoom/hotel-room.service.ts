@@ -53,7 +53,7 @@ export class HotelRoomService implements HotelRoomService {
       throw err;
     }
   }
-
+  /**Метод проверен */
   async search(data: SearchRoomsParams) {
     if (data.hotel) {
       const findRooms = await this.HotelRoom.find({

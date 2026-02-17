@@ -11,9 +11,10 @@ import {
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import { HotelService } from '../hotel/hotel.service';
-import { join } from 'path';
+import path, { join } from 'path';
 import fs from 'fs';
 import { nanoid } from 'nanoid';
+type UploadedFile = Express.Multer.File;
 
 @Injectable()
 export class RoomFilesInterceptor implements NestInterceptor {
@@ -30,10 +31,10 @@ export class RoomFilesInterceptor implements NestInterceptor {
     this.dir = 'imgStorage';
   }
 
-  intercept(
+  async intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
-  ): Observable<any> {
+  ): Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest(); // Перехват тела запроса
     if (!request.files || !Array.isArray(request.files))
       return next.handle().pipe(map(() => 'Не передано ни одного файла.'));
@@ -42,13 +43,7 @@ export class RoomFilesInterceptor implements NestInterceptor {
       if (!this.fileFilter(file.mimetype)) {
         return next.handle().pipe(map(() => 'Недопустимый тип файла.'));
       }
-      void this.saveImageStorage(file).then((data) => {
-        file.originalname = data;
-        console.log(`Saved file in then: ${file.originalname}`);
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        console.log(`Saved data: ${data}`);
-      }); // При необходимлсти переимновываем файл уникальным именем и сохраняем его в папку imgStorage.
-      console.log(`Saved file: ${file.originalname}`);
+      file.originalname = await this.saveImageStorage(file); // При необходимости, переимновываем файл уникальным именем и сохраняем его в папку imgStorage.
     }
     const newBody = { ...request.body };
     if (!newBody.images) newBody.images = [];
@@ -65,7 +60,7 @@ export class RoomFilesInterceptor implements NestInterceptor {
     return this.allowedTypes.includes(mimeType) ? true : false;
   }
 
-  async saveImageStorage(file): Promise<void> {
+  async saveImageStorage(file: UploadedFile): Promise<void | string> {
     try {
       /**Генерация уникального имени файла - можно раскомментировать и использовать при необходимости
        * функция writeFile() - не записывает файл, если он уже существует, поэтому при генерации уникального имени файла с помощью nanoid,
@@ -82,8 +77,8 @@ export class RoomFilesInterceptor implements NestInterceptor {
          *  В противном случае, используется метод create(), и нужно сохранить файл с уникальным именем, сгенерированным с помощью nanoid.
          */
         file.originalname = `${nanoid(5)}_${file.originalname}`;
-      //const filePath = path.join(dir, file.originalname);
-      //await fs.promises.writeFile(filePath, file.buffer);
+      const filePath = path.join(this.dir, file.originalname);
+      await fs.promises.writeFile(filePath, file.buffer);
     } catch (err) {
       console.error('Ошибка при сохранении файла:', err);
     }
