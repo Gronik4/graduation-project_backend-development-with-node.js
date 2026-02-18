@@ -69,3 +69,47 @@ const updateUser = await this.UserModel.findOne({ email: data.email });
     } catch (err) {
       throw err;
     }
+Формат вывода:
+  Из Бронирование номера клиентом:
+    {
+      "startDate": string,
+      "endDate": string,
+      "hotelRoom": {
+        "description": string,
+        "images": [string]
+      },
+      "hotel": {
+        "title": string,
+        "description": string
+      }
+    }
+  Из Список броней текущего пользователя для client:
+    [
+      {
+        "startDate": string,
+        "endDate": string,
+        "hotelRoom": {
+          "description": string,
+          "images": [string]
+        },
+        "hotel": {
+          "title": string,
+          "description": string
+        }
+      }
+    ]
+  Из Список броней конкретного пользователя для manager:
+    [
+      {
+        "startDate": string,
+        "endDate": string,
+        "hotelRoom": {
+          "description": string,
+          "images": [string]
+        },
+        "hotel": {
+          "title": string,
+          "description": string
+        }
+      }
+    ]

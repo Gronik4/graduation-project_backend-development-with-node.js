@@ -7,7 +7,7 @@ export type HotelRoomDocument = HotelRoom & Document;
 @Schema()
 export class HotelRoom {
   @Prop({ required: true, type: Types.ObjectId, ref: Hotel.name })
-  hotel: Types.ObjectId;
+  hotel: Types.ObjectId; // Этот тип менять нельзя - ошибка в методе search в hotel-room.service
 
   @Prop()
   description: string;

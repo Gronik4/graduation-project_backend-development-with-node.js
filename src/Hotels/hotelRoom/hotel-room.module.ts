@@ -17,5 +17,6 @@ import { HotelModule } from '../hotel/hotel.module';
   ],
   controllers: [HotelRoomController],
   providers: [HotelRoomService],
+  exports: [MongooseModule, HotelRoomService],
 })
 export class HotelRoomModule {}

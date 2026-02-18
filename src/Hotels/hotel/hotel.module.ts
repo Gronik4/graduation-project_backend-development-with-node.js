@@ -15,6 +15,6 @@ import { Hotel, HotelSchema } from '../Schemas/hotel.schema';
   ],
   controllers: [HotelController],
   providers: [HotelService],
-  exports: [HotelService],
+  exports: [MongooseModule, HotelService],
 })
 export class HotelModule {}

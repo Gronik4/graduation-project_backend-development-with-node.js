@@ -2,13 +2,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { HotelRoom, HotelRoomDocument } from '../Schemas/hotel.room.schema';
-import { Connection, Model } from 'mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { createRoomDto } from '../Interfaces/dto/createRoomDto';
 import { ShowRoomData } from '../Interfaces/ShowRoomData';
 import { HotelService } from '../hotel/hotel.service';
 import { updateRoomDto } from '../Interfaces/dto/updateRoomDto';
 import { SearchRoomsParams } from '../Interfaces/SearchRoomsParams';
-import { typeId } from 'src/Users/Interfaces/param-id';
 
 @Injectable()
 export class HotelRoomService implements HotelRoomService {
@@ -22,13 +21,13 @@ export class HotelRoomService implements HotelRoomService {
     const room = new this.HotelRoom(data);
     try {
       await room.save();
-      return this.findById({ id: room._id.toString() });
+      return this.findById(room._id);
     } catch (err) {
       throw err;
     }
   }
   /**Метод проверен */
-  async findById(id: typeId): Promise<Partial<ShowRoomData> | null> {
+  async findById(id: Types.ObjectId): Promise<Partial<ShowRoomData> | null> {
     let outRoom: Partial<ShowRoomData> | null = null;
     try {
       const findRoom = await this.HotelRoom.findOne({ _id: id.id })
@@ -70,7 +69,7 @@ export class HotelRoomService implements HotelRoomService {
   }
   /**Метод проверен */
   async update(
-    id: string,
+    id: Types.ObjectId,
     data: updateRoomDto,
   ): Promise<Partial<ShowRoomData> | null | string> {
     data.updatedAt = new Date();
@@ -78,7 +77,7 @@ export class HotelRoomService implements HotelRoomService {
       new: true,
     });
     if (updatedRoom) {
-      return this.findById({ id });
+      return this.findById(id);
     } else {
       return null;
     }

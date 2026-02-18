@@ -14,6 +14,7 @@ import { RoomFilesInterceptor } from '../interseptors/roomFilesInterseptor';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import type { updateRoomDto } from '../Interfaces/dto/updateRoomDto';
 import type { SearchRoomsParams } from '../Interfaces/SearchRoomsParams';
+import { Types } from 'mongoose';
 
 @Controller('/api')
 export class HotelRoomController {
@@ -25,9 +26,8 @@ export class HotelRoomController {
   }
 
   @Get('/common/hotel-rooms/:id') // Метод проверен
-  getHotelRoom(@Param('id') id: string) {
-    console.log(`From hotel-room controller id: ${id}`);
-    return this.hotelRSV.findById({ id });
+  getHotelRoom(@Param('id') id: Types.ObjectId) {
+    return this.hotelRSV.findById(id);
   }
 
   @Post('/admin/hotel-rooms') // Метод проверен
@@ -38,7 +38,10 @@ export class HotelRoomController {
 
   @Put('/admin/hotel-rooms/:id') // Метод проверен
   @UseInterceptors(AnyFilesInterceptor(), RoomFilesInterceptor)
-  updateHotelRoom(@Param('id') id: string, @Body() body: updateRoomDto) {
+  updateHotelRoom(
+    @Param('id') id: Types.ObjectId,
+    @Body() body: updateRoomDto,
+  ) {
     return this.hotelRSV.update(id, body);
   }
 }
