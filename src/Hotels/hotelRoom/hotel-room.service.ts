@@ -29,22 +29,20 @@ export class HotelRoomService implements HotelRoomService {
   /**Метод проверен */
   async findById(id: Types.ObjectId): Promise<Partial<ShowRoomData> | null> {
     let outRoom: Partial<ShowRoomData> | null = null;
+    console.log('id from service hotel-room:', id);
     try {
-      const findRoom = await this.HotelRoom.findOne({ _id: id.id })
+      const findRoom = await this.HotelRoom.findOne({ _id: id })
         .select('-__v')
         .exec();
       if (findRoom) {
         const findHotel = await this.HlServise.findById(findRoom.hotel);
         outRoom = {
           ...findRoom.toObject(),
-          hotel:
-            typeof findHotel === 'object' && findHotel
-              ? {
-                  id: String(findHotel.id),
-                  title: findHotel.title,
-                  description: findHotel.description,
-                }
-              : undefined,
+          hotel: {
+            id: String(findHotel.id),
+            title: findHotel.title,
+            description: findHotel.description,
+          },
         };
       }
       return outRoom;

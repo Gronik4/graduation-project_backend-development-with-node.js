@@ -29,11 +29,12 @@ export class HotelService implements IHotelService {
     }
   }
   /**Метод проверен */
-  async getAllHotels(): Promise<Partial<HotelDocument>[]> {
+  async getHotelsList(): Promise<Partial<HotelDocument>[]> {
     return this.HotelModel.find().select('_id title description').exec();
   }
   /**Метод проверен */
-  async findById(id: Types.ObjectId): Promise<Hotel | string> {
+  async findById(id: Types.ObjectId): Promise<Hotel> {
+    // Использование <Hotel | string> - вызовет ошибки в дальнейшем типа "свойств этого метода не сужествует"!!!
     const findHotel = await this.HotelModel.findOne({ _id: id }).select('-__v');
     if (findHotel) {
       return findHotel;

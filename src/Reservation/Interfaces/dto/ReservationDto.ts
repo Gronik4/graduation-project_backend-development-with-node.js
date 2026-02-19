@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { typeId } from '../../Users/Interfaces/param-id';
+import { typeId } from 'src/Users/Interfaces/param-id';
 
 export interface ReservationDto {
   userId: typeId;

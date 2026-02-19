@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { HotelService } from './hotel.service';
 import type { createHotelDto } from '../Interfaces/dto/createHotelDto';
 import { HotelDocument } from '../Schemas/hotel.schema';
 import type { UpdateHotelParams } from '../Interfaces/UpdateHotelParams';
 import type { typeId } from 'src/Users/Interfaces/param-id';
+import type { SearchHotelParams } from '../Interfaces/SearchHotelParams';
 
 @Controller('/api')
 export class HotelController {
@@ -15,13 +15,13 @@ export class HotelController {
     return this.hotelHSV.create(body);
   }
 
-  @Get('/admin/hotels/all/') // Метод проверен
-  getAllHotels(): Promise<Partial<HotelDocument>[]> {
-    return this.hotelHSV.getAllHotels();
+  @Get('/admin/hotels/') // Метод проверен
+  getHotelsList(): Promise<Partial<HotelDocument>[]> {
+    return this.hotelHSV.getHotelsList();
   }
 
   @Get('/admin/hotels') // Метод проверен
-  searchHotel(@Query() params) {
+  searchHotel(@Query() params: SearchHotelParams) {
     return this.hotelHSV.search(params);
   }
 
