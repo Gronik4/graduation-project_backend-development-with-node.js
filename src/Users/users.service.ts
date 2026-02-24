@@ -71,7 +71,11 @@ export class UsersService implements IUserService {
       const findUser = await this.UserModel.findOne({ email })
         .select(this.fields)
         .exec();
-      return findUser;
+      if (findUser) {
+        return findUser;
+      } else {
+        throw new HttpException('Нет пользователя с таким email', 404);
+      }
     } catch (err) {
       throw err;
     }

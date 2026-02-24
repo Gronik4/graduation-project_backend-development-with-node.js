@@ -3,15 +3,15 @@
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable no-useless-catch */
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { createUserDto } from 'src/Users/Interfaces/dto/createUserDto';
 import { User, UserDocument } from 'src/Users/schemas/user.schema';
 import { LoginAuthDto } from './dto/login.auth.dto';
 import { UsersService } from 'src/Users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { RegistrAuthDto } from './dto/registr.auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,14 +25,18 @@ export class AuthService {
     this.newUser = null;
   }
 
-  async register(data: createUserDto): Promise<UserDocument | null> {
-    const hashPassword = await bcrypt.hash(data.passwordHash, 10);
+  async register(data: RegistrAuthDto): Promise<UserDocument | null> {
+    const existUser = await this.UserSRV.findByEmail(data.email);
+    if (existUser) {
+      throw new HttpException('Email уже занят.', 400);
+    }
+    const hashPassword = await bcrypt.hash(data.password, 10);
     const newData = { ...data, passwordHash: hashPassword };
     this.newUser = new this.UserModel(newData);
     try {
       await this.newUser.save();
       const findUser = await this.UserModel.findById({ _id: this.newUser.id })
-        .select('_id email password name')
+        .select('_id email name')
         .exec();
       return findUser;
     } catch (err) {
@@ -49,11 +53,15 @@ export class AuthService {
         contactPhone: validUser.contactPhone,
       };
     }
-    return 'Staus Code 401. Пользователя с указанным email не существует или пароль неверный.';
+    throw new HttpException(
+      'Пользователя с указанным email не существует или пароль неверный.',
+      401,
+    );
   }
 
   async validateUser(data: LoginAuthDto): Promise<User | null> {
-    const user = await this.UserSRV.findByEmail(data.email);
+    const user = await this.UserModel.findOne({ email: data.email });
+    console.log('From validateUser data:', user);
     if (!user || !(await bcrypt.compare(data.password, user.passwordHash))) {
       return null;
     }

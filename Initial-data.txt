@@ -5,3 +5,30 @@
 администратор: admin-hotels
 пароль админа: R6UoKuXuY5mJXQM8
 
+Для регстрации через auth:
+  email: peter@yandex.ru
+  pass: 12345
+  name: Peter;
+  contactPhone: 9063211547;
+
+Для регстрации через user:
+  name: Admin;
+  password: A626345min;
+  email: admin@yandex.ru;
+  contactPhone: 9201567883;
+  role: admin;
+  whoCreate: admin;
+
+  name: Manager;
+  password: Man323615ager;
+  email: manager@yandex.ru;
+  contactPhone: 9036548084;
+  role: manager;
+  whoCreate: admin;
+
+  name: Helga;
+  password: 678910;
+  email: helga@yandex.ru;
+  contactPhone: 9151234873;
+  role: client;
+  whoCreate: admin;
