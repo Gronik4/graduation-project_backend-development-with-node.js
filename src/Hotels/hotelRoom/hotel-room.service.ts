@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable no-useless-catch */
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { HotelRoom, HotelRoomDocument } from '../Schemas/hotel.room.schema';
 import { Connection, Model, Types } from 'mongoose';
@@ -29,12 +30,11 @@ export class HotelRoomService implements HotelRoomService {
   /**Метод проверен */
   async findById(id: Types.ObjectId): Promise<Partial<ShowRoomData> | null> {
     let outRoom: Partial<ShowRoomData> | null = null;
-    console.log('id from service hotel-room:', id);
     try {
       const findRoom = await this.HotelRoom.findOne({ _id: id })
         .select('-__v')
         .exec();
-      if (findRoom) {
+      if (findRoom && findRoom.isEnabled == true) {
         const findHotel = await this.HlServise.findById(findRoom.hotel);
         outRoom = {
           ...findRoom.toObject(),
@@ -47,7 +47,11 @@ export class HotelRoomService implements HotelRoomService {
       }
       return outRoom;
     } catch (err) {
-      throw err;
+      throw new HttpException(
+        'Номера с указанным ID не существует или он отключён.',
+        400,
+        err,
+      );
     }
   }
   /**Метод проверен */

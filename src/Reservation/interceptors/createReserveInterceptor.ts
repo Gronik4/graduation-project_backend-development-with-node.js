@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -8,8 +9,7 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { ObjectId } from 'mongodb';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { HotelRoomService } from 'src/Hotels/hotelRoom/hotel-room.service';
 import { ReservationDto } from '../Interfaces/dto/ReservationDto';
 
@@ -31,31 +31,21 @@ export class CreateReserveInterceptor implements NestInterceptor {
         400,
       );
     }
-    console.log('Данные из Interceptor data:', data);
     const room = await this.HRService.findById(data.hotelRoom);
     if (!room) {
       throw new HttpException(
         'From Interceptor Номера с указанным ID не существует',
-        404,
+        400,
       );
     }
     this.newData = {
       roomId: data.hotelRoom,
-      userId: data.userId,
+      userId: data.hotelRoom, // Заглушка для userId, так как в данном контексте нет информации о пользователе
       hotelId: room.hotel ? room.hotel.id : data.hotelId,
       dateStart: new Date(data.dateStart), // Преобразование строки в объект Date ISO 8601
       dateEnd: new Date(data.dateEnd),
     };
-    console.log('Данные из Interceptor this.newData:', this.newData);
-    return next.handle().pipe(
-      tap((response) => {
-        console.log('Полученный ответ:', response); // Логика после завершения основной обработки
-      }),
-      map(() => 'Перехват из ReserveInterceptor'),
-    );
-  }
-
-  convertToObjectId(id: string) {
-    return new ObjectId(id);
+    request.body = this.newData; // Замена тела запроса на newData
+    return next.handle().pipe(map((data) => data));
   }
 }

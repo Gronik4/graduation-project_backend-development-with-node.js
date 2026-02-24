@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable no-constant-condition */
 /* eslint-disable no-useless-catch */
 import { HttpException, Injectable } from '@nestjs/common';
 import { Reservation, ReservationDocument } from './schemas/reservation.schema';
-//import { ReservationSearchOptions } from './Interfaces/ReservationSearchOptions';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model, ObjectId, Types } from 'mongoose';
 import { outReservation } from './Interfaces/OutReservation';
@@ -13,10 +14,12 @@ import { HotelRoom } from 'src/Hotels/Schemas/hotel.room.schema';
 import { Hotel } from 'src/Hotels/Schemas/hotel.schema';
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { ReservationDto } from './Interfaces/dto/ReservationDto';
-//import { IReservation } from './Interfaces/IReservation';
+import { IReservation } from './Interfaces/IReservation';
+import { ReservationSearchOptions } from './Interfaces/ReservationSearchOptions';
+import { ReservationFilters } from './Interfaces/ReservationFilters';
 
 @Injectable()
-export class ReservationService {
+export class ReservationService implements IReservation {
   newReserv: outReservation | null;
   constructor(
     @InjectModel(Reservation.name)
@@ -27,26 +30,24 @@ export class ReservationService {
   ) {
     this.newReserv = null;
   }
-  async addReservation(data: ReservationDto) {
-    console.log(`data from service: ${JSON.stringify(data.roomId)}`);
-    if (!(await this.reservationModel.findOne({ roomId: data.roomId }))) {
+  /*Метод проверен*/
+  async addReservation(data: ReservationDto): Promise<outReservation | string> {
+    if (
+      !(await this.HRService.findById(data.roomId as unknown as Types.ObjectId))
+    ) {
       throw new HttpException('Номера с указанным ID не существует', 400);
     }
-    /*try {
+    try {
       const occupied = await this.getReserveByRooms(data.roomId);
-      const isoDateEnd = new Date(data.dateEnd);
-      const isoDateStart = new Date(data.dateStart);
       if (
         occupied?.length === 0 ||
         occupied?.every(
           (item) =>
-            moment(item.dateEnd).isBefore(isoDateStart) || // true, если item.dateEnd строго раньше isoDateStart.
-            (moment(item.dateStart).isAfter(isoDateEnd) &&
-              moment(item.dateEnd).isAfter(isoDateStart)),
+            moment(item.dateEnd).isBefore(data.dateStart) || // true, если item.dateEnd строго раньше data.dateSrart.
+            (moment(item.dateStart).isAfter(data.dateEnd) &&
+              moment(item.dateEnd).isAfter(data.dateStart)),
         )
       ) {
-        data.dateEnd = isoDateEnd;
-        data.dateStart = isoDateStart;
         const newReservation = new this.reservationModel(data);
         await newReservation.save();
         const output = await this.dataOutput(newReservation._id);
@@ -59,8 +60,7 @@ export class ReservationService {
       }
     } catch (err) {
       throw err;
-    }*/
-    return 'Это наладка Imterceptor';
+    }
   }
   /*Метод проверен*/
   async removeReservation(id: typeId): Promise<void> {
@@ -69,25 +69,48 @@ export class ReservationService {
       throw new HttpException('Бронирования с таким id не существует', 400);
     }
   }
-  /*
+  /*Метод проверен*/
   async getReservations(
-    filter: ReservationSearchOptions,
-  ): Promise<Array<Reservation>> {}
-*/
+    params: ReservationSearchOptions,
+  ): Promise<outReservation[] | string> {
+    const outReserve: outReservation[] = [];
+    const filter: ReservationFilters = {};
+    if (params.userId) filter.userId = { $regex: params.userId as string };
+    if (params.dateStart)
+      filter.dateStart = { $regex: new Date(params.dateStart) };
+    if (params.dateEnd) filter.dateEnd = { $regex: new Date(params.dateEnd) };
+    if ((Object.keys(filter).length = 0)) {
+      throw new HttpException('Ни по одному полю совпадений не найдено', 400);
+    } else {
+      const foundArray: ReservationDocument[] = [];
+      let found: object;
+      for (found of Object.entries(filter)) {
+        const reserves = await this.reservationModel
+          .find({ [found[0]]: found[1] })
+          .select('-__v')
+          .exec();
+        if (reserves.length != 0) {
+          const merge = reserves.filter(
+            (item2) => !foundArray.some((item1) => item1._id === item2._id),
+          );
+          foundArray.push(...merge);
+        }
+      }
+      for (const i of foundArray) {
+        const output = await this.dataOutput(i._id);
+        outReserve.push(output as outReservation);
+      }
+    }
+    return outReserve;
+  }
+  /*Метод проверен*/
   async getReserveByRooms(id: ObjectId): Promise<Reservation[] | null> {
     return await this.reservationModel
       .find({ roomId: id })
       .select('-__v')
       .exec();
   }
-
-  async getReserveByClients(id: string): Promise<Reservation[] | null> {
-    return await this.reservationModel
-      .find({ userId: id })
-      .select('-__v')
-      .exec();
-  }
-
+  /*Метод проверен*/
   async dataOutput(id: Types.ObjectId): Promise<outReservation | string> {
     try {
       const outData = await this.reservationModel.findById(id).select('-__v');

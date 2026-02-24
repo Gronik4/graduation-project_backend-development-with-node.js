@@ -86,7 +86,7 @@ export class UsersService implements IUserService {
       filters.contactPhone = { $regex: params.contactPhone };
 
     if (Object.keys(filters).length === 0) {
-      return 'Ни по одному полю совпадений не найдено';
+      throw new HttpException('Ни по одному полю совпадений не найдено', 400);
     } else {
       /**
        * return this.UserModel.find(filters)
@@ -95,7 +95,7 @@ export class UsersService implements IUserService {
         .select(this.fields)
         .exec();
         Так не работает! Выдает пустой массив!!
-        Т.К. Один запрос со всеми фильтрами (MongoDB по умолчанию использует логику И).
+        Т.К. Один запрос со всеми фильтрами в MongoDB по умолчанию использует логику И.
         Ниже - рабочее решение.
        */
       let value: object;

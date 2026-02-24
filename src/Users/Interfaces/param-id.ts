@@ -1,5 +1,5 @@
-import { ObjectId } from 'mongoose';
+import { Types } from 'mongoose';
 
 export interface typeId {
-  id?: ObjectId | string;
+  id?: Types.ObjectId | string;
 }
