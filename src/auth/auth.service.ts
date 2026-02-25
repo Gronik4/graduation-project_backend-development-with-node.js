@@ -25,7 +25,7 @@ export class AuthService {
     this.newUser = null;
   }
 
-  async register(data: RegistrAuthDto): Promise<UserDocument | null> {
+  async register(req: Request, data: RegistrAuthDto): Promise<UserDocument | null> {
     const existUser = await this.UserSRV.findByEmail(data.email);
     if (existUser) {
       throw new HttpException('Email уже занят.', 400);
@@ -44,26 +44,23 @@ export class AuthService {
     }
   }
 
-  async login(data: LoginAuthDto): Promise<object | string> {
-    const validUser = await this.validateUser(data);
-    if (validUser) {
+  login(data: User): object | null {
+    if (data)
       return {
-        email: validUser.email,
-        name: validUser.name,
-        contactPhone: validUser.contactPhone,
+        email: data.email,
+        name: data.name,
+        contactPhone: data.contactPhone,
       };
-    }
-    throw new HttpException(
-      'Пользователя с указанным email не существует или пароль неверный.',
-      401,
-    );
+    return null;
   }
 
-  async validateUser(data: LoginAuthDto): Promise<User | null> {
+  async validateUser(data: LoginAuthDto): Promise<User> {
     const user = await this.UserModel.findOne({ email: data.email });
-    console.log('From validateUser data:', user);
     if (!user || !(await bcrypt.compare(data.password, user.passwordHash))) {
-      return null;
+      throw new HttpException(
+        'Пользователя с указанным email не существует или пароль неверный.',
+        401,
+      );
     }
     return user;
   }

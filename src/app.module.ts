@@ -11,13 +11,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { links } from 'project-config/links-config';
 import { AuthModule } from './auth/auth.module';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(), // загружает .env автоматически из корня
-    MongooseModule.forRoot(
-      links.UrlDb || 'mongodb://localhost:27017/ClusterDPH',
-    ),
+    MongooseModule.forRoot(links.UrlDb || 'mongodb://localhost:27017/ClusterDPH'),
     UsersModule,
     HotelModule,
     HotelRoomModule,
@@ -25,6 +24,7 @@ import { AuthModule } from './auth/auth.module';
     MessageModule,
     SupportRequestModule,
     AuthModule,
+    SessionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
