@@ -1,19 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import {
-  Body,
-  Controller,
-  HttpException,
-  Post,
-  Request,
-  Response,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpException, Post, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDocument } from 'src/Users/schemas/user.schema';
 import type { LoginAuthDto } from './dto/login.auth.dto';
 import type { RegistrAuthDto } from './dto/registr.auth.dto';
-import { AuthUserGuard } from './auth.guard';
 
 @Controller('/api')
 export class AuthController {
@@ -28,7 +19,6 @@ export class AuthController {
   }
 
   @Post('/auth/login')
-  @UseGuards(AuthUserGuard)
   async loginUser(
     @Request() req,
     @Body() data: LoginAuthDto,

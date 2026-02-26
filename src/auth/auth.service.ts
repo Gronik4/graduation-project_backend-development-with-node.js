@@ -9,7 +9,6 @@ import { Connection, Model } from 'mongoose';
 import { User, UserDocument } from 'src/Users/schemas/user.schema';
 import { LoginAuthDto } from './dto/login.auth.dto';
 import { UsersService } from 'src/Users/users.service';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegistrAuthDto } from './dto/registr.auth.dto';
 
@@ -20,7 +19,6 @@ export class AuthService {
     @InjectModel(User.name) private UserModel: Model<UserDocument>,
     @InjectConnection() private connection: Connection,
     private readonly UserSRV: UsersService,
-    private readonly jwtService: JwtService,
   ) {
     this.newUser = null;
   }
@@ -58,14 +56,10 @@ export class AuthService {
     const user = await this.UserModel.findOne({ email: data.email });
     if (!user || !(await bcrypt.compare(data.password, user.passwordHash))) {
       throw new HttpException(
-        'Пользователя с указанным email не существует или пароль неверный.',
+        'Пользователя с указанным email не существует или пароль неверный. Validate',
         401,
       );
     }
     return user;
-  }
-
-  createToken(paylod: any) {
-    return this.jwtService.sign(paylod);
   }
 }
