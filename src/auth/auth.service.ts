@@ -53,7 +53,7 @@ export class AuthService {
   }
 
   async validateUser(data: LoginAuthDto): Promise<User> {
-    const user = await this.UserModel.findOne({ email: data.email });
+    const user = await this.UserModel.findOne({ email: data.email }).select('-__v');
     if (!user || !(await bcrypt.compare(data.password, user.passwordHash))) {
       throw new HttpException(
         'Пользователя с указанным email не существует или пароль неверный. Validate',

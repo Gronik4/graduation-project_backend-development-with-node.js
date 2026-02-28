@@ -26,10 +26,7 @@ export class CreateReserveInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest(); // Перехват тела запроса
     const data = request.body;
     if (!data) {
-      throw new HttpException(
-        'From Interceptor Нет данных в теле запроса',
-        400,
-      );
+      throw new HttpException('From Interceptor Нет данных в теле запроса', 400);
     }
     const room = await this.HRService.findById(data.hotelRoom);
     if (!room) {
@@ -40,7 +37,7 @@ export class CreateReserveInterceptor implements NestInterceptor {
     }
     this.newData = {
       roomId: data.hotelRoom,
-      userId: data.hotelRoom, // Заглушка для userId, так как в данном контексте нет информации о пользователе
+      userId: request.session?.userId,
       hotelId: room.hotel ? room.hotel.id : data.hotelId,
       dateStart: new Date(data.dateStart), // Преобразование строки в объект Date ISO 8601
       dateEnd: new Date(data.dateEnd),

@@ -32,9 +32,7 @@ export class ReservationService implements IReservation {
   }
   /*Метод проверен*/
   async addReservation(data: ReservationDto): Promise<outReservation | string> {
-    if (
-      !(await this.HRService.findById(data.roomId as unknown as Types.ObjectId))
-    ) {
+    if (!(await this.HRService.findById(data.roomId as unknown as Types.ObjectId))) {
       throw new HttpException('Номера с указанным ID не существует', 400);
     }
     try {
@@ -53,10 +51,7 @@ export class ReservationService implements IReservation {
         const output = await this.dataOutput(newReservation._id);
         return output;
       } else {
-        throw new HttpException(
-          'Номер с указанным ID уже занят на указанную дату.',
-          404,
-        );
+        throw new HttpException('Номер с указанным ID уже занят на указанную дату.', 404);
       }
     } catch (err) {
       throw err;
@@ -76,8 +71,7 @@ export class ReservationService implements IReservation {
     const outReserve: outReservation[] = [];
     const filter: ReservationFilters = {};
     if (params.userId) filter.userId = { $regex: params.userId as string };
-    if (params.dateStart)
-      filter.dateStart = { $regex: new Date(params.dateStart) };
+    if (params.dateStart) filter.dateStart = { $regex: new Date(params.dateStart) };
     if (params.dateEnd) filter.dateEnd = { $regex: new Date(params.dateEnd) };
     if ((Object.keys(filter).length = 0)) {
       throw new HttpException('Ни по одному полю совпадений не найдено', 400);
@@ -105,17 +99,12 @@ export class ReservationService implements IReservation {
   }
   /*Метод проверен*/
   async getReserveByRooms(id: ObjectId): Promise<Reservation[] | null> {
-    return await this.reservationModel
-      .find({ roomId: id })
-      .select('-__v')
-      .exec();
+    return await this.reservationModel.find({ roomId: id }).select('-__v').exec();
   }
   /*Метод проверен*/
   async dataOutput(id: Types.ObjectId): Promise<outReservation | string> {
     try {
-      const outData = await this.reservationModel.findById(id).select('-__v');
-      if (!outData)
-        throw new HttpException('Бронирование с таким id не найдено', 404);
+      const outData = await this.getRserveById(id);
       const DSString = moment(outData.dateStart).format('D MMMM YYYY');
       const DEString = moment(outData.dateEnd).format('D MMMM YYYY');
       const hotelObj = await this.hotelService.findById(outData.hotelId);
@@ -136,5 +125,11 @@ export class ReservationService implements IReservation {
     } catch (err) {
       throw err;
     }
+  }
+
+  async getRserveById(resId: Types.ObjectId): Promise<ReservationDocument> {
+    const reserve = await this.reservationModel.findById(resId).select('-__v');
+    if (!reserve) throw new HttpException('Бронирование с таким id не найдено', 404);
+    return reserve;
   }
 }

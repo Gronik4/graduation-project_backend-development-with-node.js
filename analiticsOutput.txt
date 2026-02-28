@@ -1,0 +1,110 @@
+Формат вывода:
+  Бронирование:
+    Из Бронирование номера клиентом:
+      {
+        "startDate": string,
+        "endDate": string,
+        "hotelRoom": {
+          "description": string,
+          "images": [string]
+        },
+        "hotel": {
+          "title": string,
+          "description": string
+        }
+      }
+    Из Список броней текущего пользователя для client:
+      [
+        {
+          "startDate": string,
+          "endDate": string,
+          "hotelRoom": {
+            "description": string,
+            "images": [string]
+          },
+          "hotel": {
+            "title": string,
+            "description": string
+          }
+        }
+      ]
+    Из Список броней конкретного пользователя для manager:
+      [
+        {
+          "startDate": string,
+          "endDate": string,
+          "hotelRoom": {
+            "description": string,
+            "images": [string]
+          },
+          "hotel": {
+            "title": string,
+            "description": string
+          }
+        }
+      ]
+  API Модуля «Гостиницы»
+    Добавление гостиницы POST /api/admin/hotels/
+    Изменение описания гостиницы PUT /api/admin/hotels/:id
+      {
+        "id": string,
+        "title": string,
+        "description": string
+      }
+    Получение списка гостиниц GET /api/admin/hotels/
+      [
+        {
+          "id": string,
+          "title": string,
+          "description": string
+        }
+      ]
+  API Модуля «Гостиницы»-rooms:
+    Поиск номеров GET /api/common/hotel-rooms
+      [
+        {
+          "id": string,
+          "description": string,
+          "images": [string],
+          "hotel": {
+            "id": string,
+            "title": string
+          }
+        }
+      ]
+     Информация о конкретном номере GET /api/common/hotel-rooms/:id
+      {
+        "id": string,
+        "description": string,
+        "images": [string],
+        "hotel": {
+          "id": string,
+          "title": string,
+          "description": string
+        }
+      }
+    Добавление номера - POST /api/admin/hotel-rooms/
+      {
+        "id": string,
+        "description": string,
+        "images": [string],
+        "isEnabled": boolean,
+        "hotel": {
+          "id": string,
+          "title": string,
+          "description": string
+        }
+      }
+     Изменение описания номера PUT /api/admin/hotel-rooms/:id
+      {
+        "id": string,
+        "description": string,
+        "images": [string],
+        "isEnabled": boolean,
+        "hotel": {
+          "id": string,
+          "title": string,
+          "description": string
+        }
+      }
+    

@@ -1,27 +1,33 @@
+///* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common';
-//import { Model } from 'mongoose';
 import { User } from 'src/Users/schemas/user.schema';
-import { AuthService } from './auth.service';
-import { LoginAuthDto } from './dto/login.auth.dto';
 import { pathToRegexp } from 'path-to-regexp';
+import { UsersService } from 'src/Users/users.service';
+import { typeId } from 'src/Users/Interfaces/param-id';
+//import { ReservationService } from 'src/Reservation/reservation.service';
+//import { Types } from 'mongoose';
 
 @Injectable()
 export class AuthUserGuard /*extends AuthGuard('local') */ implements CanActivate {
+  reqId: string;
+  sessId: string;
   constructor(
-    private readonly authService: AuthService,
-    //private readonly UserModel: Model<UserDocument>,
-  ) {}
+    private readonly userSrv: UsersService,
+    //private readonly reserveSrv: ReservationService,
+  ) {
+    this.reqId = '';
+    this.sessId = '';
+  }
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    console.log('from AuthUserGuard');
-    const data: LoginAuthDto = request.body;
-    if (!data.email || !data.password) {
-      throw new HttpException('Не все данные переданы.', 400);
-    }
-    const user = await this.authService.validateUser(request.body);
+    this.sessId = request.session.userId;
+    this.reqId = request.params.id;
+    if (!this.sessId) throw new HttpException('Пользователь не авторизован.', 401);
+    console.log('From AuthUserGuard, sessionId: ', this.sessId);
+    const user = await this.userSrv.findById(this.sessId as typeId);
     if (!user) {
       throw new HttpException(
         'Пользователя с указанным email не существует или пароль неверный. Guard',
@@ -31,6 +37,11 @@ export class AuthUserGuard /*extends AuthGuard('local') */ implements CanActivat
     const resultChecking = this.checkingRights(request.originalUrl, user);
     if (resultChecking === 0)
       throw new HttpException('Роль пользователя не подходит.', 403);
+    console.log(
+      `From AuthUserGuard, id reserv:  ${request.params.id} method: ${request.method}`,
+    );
+    /*if (user.role === 'client' && request.method === 'DELETE')
+      void (await this.checkingId());*/
     return true;
   }
 
@@ -41,27 +52,28 @@ export class AuthUserGuard /*extends AuthGuard('local') */ implements CanActivat
     }
     /* Этот блок проверять в support-requests. От сюда*/
     const allowedUrl = [
-      pathToRegexp('/api/common/support-requests/:id/messages'), // См. строку 12!!! Объявление URLPattern.
+      pathToRegexp('/api/common/support-requests/:id/messages'),
       pathToRegexp('/api/common/support-requests/:id/messages/read'),
     ];
     allowedUrl.forEach((item) => {
       if (item.regexp.test(url)) {
-        // возвращает true, если шаблон совпал.
-        const prepeaId = item.regexp.exec(url);
-        console.log('prepeaId:', prepeaId);
-        if (prepeaId) {
-          const idUrl = prepeaId.groups?.id; // Получаем id из url
-          console.log('idUrl:', idUrl);
-          if (user.id) throw new HttpException('Роль пользователя не подходит.', 403);
-          const isRoleValid = user.role === 'client' || user.role === 'manager';
-          return isRoleValid;
-        }
+        //void (await this.checkingId());
+        console.log(url);
       }
     });
     /* Этот блок проверять в support-requests. До сюда*/
-    console.log('from checkingRights, url.split()[2]:', url.split('/')[2]);
-    console.log('from checkingRights, user.role:', user.role);
-    console.log('from checkingRights, result', url.split('/')[2] === user.role);
     return url.split('/')[2] === user.role ? true : 0;
+  }
+
+  checkingId(): boolean {
+    /*const reserv = await this.reserveSrv.getRserveById(
+      this.reqId as unknown as Types.ObjectId,
+    );*/
+    if (/*reserv?.userId.toString()*/ !this.sessId)
+      throw new HttpException(
+        'Пользователь не может удалять бронь созданную другими.',
+        403,
+      );
+    return true;
   }
 }

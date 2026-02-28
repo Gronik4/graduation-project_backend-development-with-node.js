@@ -7,6 +7,7 @@ import { HotelModule } from 'src/Hotels/hotel/hotel.module';
 import { HotelRoomModule } from 'src/Hotels/hotelRoom/hotel-room.module';
 import { HotelRoomService } from 'src/Hotels/hotelRoom/hotel-room.service';
 import { HotelService } from 'src/Hotels/hotel/hotel.service';
+import { UsersModule } from 'src/Users/users.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { HotelService } from 'src/Hotels/hotel/hotel.service';
     ]),
     HotelRoomModule,
     HotelModule,
+    UsersModule,
   ],
   controllers: [ReservationController],
   providers: [ReservationService, HotelRoomService, HotelService],

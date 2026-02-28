@@ -1,5 +1,5 @@
 export interface ClientReserveDto {
   hotelRoom: string;
-  startDate: string;
-  endDate: string;
+  dateStart: string;
+  dateEnd: string;
 }

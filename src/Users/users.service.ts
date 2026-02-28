@@ -28,12 +28,9 @@ export class UsersService implements IUserService {
     try {
       const userMail = await this.UserModel.findOne({ email: data.email });
       if (userMail) {
-        throw new HttpException(
-          'Пользователь с таким email уже существует',
-          400,
-        );
+        throw new HttpException('Пользователь с таким email уже существует', 400);
       }
-      /* Генерируем простой временный пароль клиента*/
+      /* Генерируем простой временный пароль клиента. Внимание!!! Пароль в data.password подменяется этим!!!*/
       const password = generate({
         length: 7,
         numbers: true,
@@ -41,6 +38,7 @@ export class UsersService implements IUserService {
         lowercase: true,
         strict: true,
       });
+      console.log(`Новый пароль для ${data.name}: ${password}`);
       const hashPass = await bcrypt.hash(password, 10);
       data.passwordHash = hashPass;
       data.whoCreate = 'admin';
@@ -54,9 +52,7 @@ export class UsersService implements IUserService {
 
   async findById(id: typeId): Promise<UserDocument | null> {
     try {
-      const findUser = await this.UserModel.findById(id)
-        .select(this.fields)
-        .exec();
+      const findUser = await this.UserModel.findById(id).select(this.fields).exec();
       if (!findUser) {
         throw new HttpException('Пользователь не найден', 404);
       }
@@ -68,9 +64,7 @@ export class UsersService implements IUserService {
   /*Метод проверен */
   async findByEmail(email: string): Promise<UserDocument | null> {
     try {
-      const findUser = await this.UserModel.findOne({ email })
-        .select(this.fields)
-        .exec();
+      const findUser = await this.UserModel.findOne({ email }).select(this.fields).exec();
       if (findUser) {
         return findUser;
       } else {
@@ -86,8 +80,7 @@ export class UsersService implements IUserService {
     const findUsers: UserDocument[] = [];
     if (params.name) filters.name = { $regex: params.name, $options: 'i' };
     if (params.email) filters.email = { $regex: params.email, $options: 'i' };
-    if (params.contactPhone)
-      filters.contactPhone = { $regex: params.contactPhone };
+    if (params.contactPhone) filters.contactPhone = { $regex: params.contactPhone };
 
     if (Object.keys(filters).length === 0) {
       throw new HttpException('Ни по одному полю совпадений не найдено', 400);

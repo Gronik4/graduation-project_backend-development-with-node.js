@@ -23,7 +23,6 @@ export class AuthController {
     @Request() req,
     @Body() data: LoginAuthDto,
   ): Promise<object | string | null> {
-    console.log('from authController req:', req.user);
     const user = await this.authSrv.validateUser(data);
     if (user && req.session) {
       req.session.userId = user.id;

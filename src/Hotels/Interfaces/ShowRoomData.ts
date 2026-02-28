@@ -9,6 +9,6 @@ export interface ShowRoomData {
   hotel: {
     id: string;
     title: string;
-    description: string;
+    description?: string;
   };
 }

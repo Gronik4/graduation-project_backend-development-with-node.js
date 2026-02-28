@@ -20,9 +20,9 @@ export class HotelService implements IHotelService {
     const hotel = new this.HotelModel(data);
     try {
       await hotel.save();
-      const findHotel = await this.HotelModel.findOne({ _id: hotel._id })
-        .select('_id title description')
-        .exec();
+      const findHotel = await this.HotelModel.findOne({ _id: hotel._id }).select(
+        '_id title description',
+      );
       return findHotel;
     } catch (err) {
       throw err;
@@ -34,8 +34,10 @@ export class HotelService implements IHotelService {
   }
   /**Метод проверен */
   async findById(id: Types.ObjectId): Promise<Hotel> {
-    // Использование <Hotel | string> - вызовет ошибки в дальнейшем типа "свойств этого метода не сужествует"!!!
-    const findHotel = await this.HotelModel.findOne({ _id: id }).select('-__v');
+    // Использование <Hotel | string> - вызовет ошибки в дальнейшем типа "свойств этого метода не существует"!!!
+    const findHotel = await this.HotelModel.findOne({ _id: id }).select(
+      '_id title description',
+    );
     if (findHotel) {
       return findHotel;
     } else {
@@ -63,7 +65,7 @@ export class HotelService implements IHotelService {
       // id.id - так как id приходит в виде объекта {id: 'значение'}, а нужно string!!
       new: true,
     })
-      .select('-__v')
+      .select('_id title description')
       .exec();
     if (findHotel) {
       return findHotel;

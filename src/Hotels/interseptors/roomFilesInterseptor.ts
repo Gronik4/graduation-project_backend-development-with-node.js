@@ -68,9 +68,7 @@ export class RoomFilesInterceptor implements NestInterceptor {
        *  а не перезаписывать существующий в случае использования функции saveImageStorage() в методе update().
        */
       //file.originalname = `${nanoid(5)}_${file.originalname}`;
-      const storFiles = await fs.promises.readdir(
-        join(process.cwd(), this.dir),
-      );
+      const storFiles = await fs.promises.readdir(join(process.cwd(), this.dir));
       if (!storFiles.includes(file.originalname))
         /**
          *  Если файл с таким именем уже существует, значит используется метод update(), и нужно перезаписать существующий файл.

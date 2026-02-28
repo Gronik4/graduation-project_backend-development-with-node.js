@@ -6,6 +6,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { HotelRoomService } from './hotel-room.service';
@@ -15,6 +16,7 @@ import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import type { updateRoomDto } from '../Interfaces/dto/updateRoomDto';
 import type { SearchRoomsParams } from '../Interfaces/SearchRoomsParams';
 import { Types } from 'mongoose';
+import { AuthUserGuard } from 'src/guards/auth.guard';
 
 @Controller('/api')
 export class HotelRoomController {
@@ -31,17 +33,16 @@ export class HotelRoomController {
   }
 
   @Post('/admin/hotel-rooms') // Метод проверен
+  @UseGuards(AuthUserGuard)
   @UseInterceptors(AnyFilesInterceptor(), RoomFilesInterceptor)
   createHotelRoom(@Body() body: createRoomDto) {
     return this.hotelRSV.create(body);
   }
 
   @Put('/admin/hotel-rooms/:id') // Метод проверен
+  @UseGuards(AuthUserGuard)
   @UseInterceptors(AnyFilesInterceptor(), RoomFilesInterceptor)
-  updateHotelRoom(
-    @Param('id') id: Types.ObjectId,
-    @Body() body: updateRoomDto,
-  ) {
+  updateHotelRoom(@Param('id') id: Types.ObjectId, @Body() body: updateRoomDto) {
     return this.hotelRSV.update(id, body);
   }
 }
