@@ -7,7 +7,6 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { User, UserDocument } from 'src/Users/schemas/user.schema';
-import { LoginAuthDto } from './dto/login.auth.dto';
 import { UsersService } from 'src/Users/users.service';
 import * as bcrypt from 'bcrypt';
 import { RegistrAuthDto } from './dto/registr.auth.dto';
@@ -42,19 +41,18 @@ export class AuthService {
     }
   }
 
-  login(data: User): object | null {
-    if (data)
-      return {
-        email: data.email,
-        name: data.name,
-        contactPhone: data.contactPhone,
-      };
+  async login(data: User): Promise<object | null> {
+    console.log('from Auth service data: ', data);
+    if (data) {
+      const user = await this.UserSRV.findByEmail(data.email);
+      return { email: user?.email, name: user?.name, contactPhone: user?.contactPhone };
+    }
     return null;
   }
 
-  async validateUser(data: LoginAuthDto): Promise<User> {
-    const user = await this.UserModel.findOne({ email: data.email }).select('-__v');
-    if (!user || !(await bcrypt.compare(data.password, user.passwordHash))) {
+  async validateUser(email: string, password: string): Promise<User> {
+    const user = await this.UserModel.findOne({ email }).select('-__v');
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       throw new HttpException(
         'Пользователя с указанным email не существует или пароль неверный. Validate',
         401,

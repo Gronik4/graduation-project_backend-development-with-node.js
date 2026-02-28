@@ -5,7 +5,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
   Param,
   Post,
   Req,
@@ -18,6 +17,7 @@ import type { ReservationDto } from './Interfaces/dto/ReservationDto';
 import { CreateReserveInterceptor } from './interceptors/createReserveInterceptor';
 import type { ReservationSearchOptions } from './Interfaces/ReservationSearchOptions';
 import { AuthUserGuard } from 'src/guards/auth.guard';
+import { IdReservationGuard } from 'src/guards/id-reservation.guard';
 
 @Controller('/api')
 export class ReservationController {
@@ -46,10 +46,8 @@ export class ReservationController {
   }
 
   @Delete('/client/reservations/:id') // Метод проверен
-  @UseGuards(AuthUserGuard)
+  @UseGuards(AuthUserGuard, IdReservationGuard)
   removeByClient(@Param('id') id: typeId) {
-    console.log('From Controller delete id: ', id);
-    throw new HttpException('From removeByClient - it`s a setup', 500);
     return this.RrnService.removeReservation(id);
   }
 

@@ -4,6 +4,6 @@ import { SupportRequestController } from './support-request.controller';
 
 @Module({
   providers: [SupportRequestService],
-  controllers: [SupportRequestController]
+  controllers: [SupportRequestController],
 })
 export class SupportRequestModule {}

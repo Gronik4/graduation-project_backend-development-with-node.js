@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Body, Controller, HttpException, Post, Request } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserDocument } from 'src/Users/schemas/user.schema';
-import type { LoginAuthDto } from './dto/login.auth.dto';
+import { User, UserDocument } from 'src/Users/schemas/user.schema';
 import type { RegistrAuthDto } from './dto/registr.auth.dto';
+import { AuthUserGuard } from 'src/guards/auth.guard';
 
 @Controller('/api')
 export class AuthController {
@@ -19,17 +19,9 @@ export class AuthController {
   }
 
   @Post('/auth/login')
-  async loginUser(
-    @Request() req,
-    @Body() data: LoginAuthDto,
-  ): Promise<object | string | null> {
-    const user = await this.authSrv.validateUser(data);
-    if (user && req.session) {
-      req.session.userId = user.id;
-    } else {
-      throw new HttpException('Session not found.', 500);
-    }
-    return this.authSrv.login(user);
+  @UseGuards(AuthUserGuard)
+  loginUser(@Body() data: User): object | null {
+    return this.authSrv.login(data);
   }
 
   @Post('/auth/logout')

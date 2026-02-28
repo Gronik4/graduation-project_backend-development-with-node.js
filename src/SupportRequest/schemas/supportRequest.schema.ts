@@ -6,6 +6,8 @@ export type SupportRequestDocument = SupportRequest & Document;
 
 @Schema()
 export class SupportRequest {
+  id: typeId;
+
   @Prop({ required: true })
   user: typeId;
 
@@ -19,5 +21,4 @@ export class SupportRequest {
   isActive: boolean;
 }
 
-export const SupportRequestSchema =
-  SchemaFactory.createForClass(SupportRequest);
+export const SupportRequestSchema = SchemaFactory.createForClass(SupportRequest);

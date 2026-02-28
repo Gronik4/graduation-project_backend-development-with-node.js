@@ -52,7 +52,7 @@ export class UsersService implements IUserService {
 
   async findById(id: typeId): Promise<UserDocument | null> {
     try {
-      const findUser = await this.UserModel.findById(id).select(this.fields).exec();
+      const findUser = await this.UserModel.findById(id).select(this.fields);
       if (!findUser) {
         throw new HttpException('Пользователь не найден', 404);
       }
@@ -64,7 +64,7 @@ export class UsersService implements IUserService {
   /*Метод проверен */
   async findByEmail(email: string): Promise<UserDocument | null> {
     try {
-      const findUser = await this.UserModel.findOne({ email }).select(this.fields).exec();
+      const findUser = await this.UserModel.findOne({ email }).select(this.fields);
       if (findUser) {
         return findUser;
       } else {

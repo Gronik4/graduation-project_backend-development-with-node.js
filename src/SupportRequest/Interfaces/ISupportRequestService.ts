@@ -1,6 +1,6 @@
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { GetChatListParams } from './GetChatListParams';
-import { SendMessageDto } from './SendMessageDto';
+import { SendMessageDto } from './dto/SendMessageDto';
 import { SupportRequest } from '../schemas/supportRequest.schema';
 import { Message } from '../schemas/message.schema';
 
