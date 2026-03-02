@@ -8,17 +8,17 @@ export type MessageDocument = Message & Document;
 export class Message {
   id: typeId;
 
-  @Prop({ required: true })
-  author: Types.ObjectId;
+  @Prop({ required: true, type: Types.ObjectId })
+  author: typeId;
 
-  @Prop({ required: true })
-  sentAt: Date;
+  @Prop({ required: true, default: Date.now() })
+  sentAt?: Date;
 
   @Prop({ required: true })
   text: string;
 
   @Prop()
-  readAt: Date;
+  readAt?: Date;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

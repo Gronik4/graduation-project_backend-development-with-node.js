@@ -15,5 +15,6 @@ import { Message, MessageSchema } from '../schemas/message.schema';
   ],
   controllers: [MessageController],
   providers: [MessageService],
+  exports: [MongooseModule, MessageService],
 })
 export class MessageModule {}

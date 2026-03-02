@@ -42,7 +42,6 @@ export class AuthService {
   }
 
   async login(data: User): Promise<object | null> {
-    console.log('from Auth service data: ', data);
     if (data) {
       const user = await this.UserSRV.findByEmail(data.email);
       return { email: user?.email, name: user?.name, contactPhone: user?.contactPhone };

@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { typeId } from 'src/Users/Interfaces/param-id';
 
 @Injectable()
-export class AuthUserGuard extends AuthGuard('local') /*implements CanActivate*/ {
+export class AuthUserGuard extends AuthGuard('local') {
   constructor(private readonly userSrv: UsersService) {
     super();
   }
@@ -27,9 +27,9 @@ export class AuthUserGuard extends AuthGuard('local') /*implements CanActivate*/
     if (!request.session.userId) {
       throw new HttpException('Пользователь не авторизован.', 401);
     }
-    const userRole = await this.userSrv.findById(request.session.userId as typeId);
+    const userForRole = await this.userSrv.findById(request.session.userId as typeId);
     const reqUrl: string = request.originalUrl;
-    const result = reqUrl.split('/')[2] === userRole?.role ? true : 0;
+    const result = reqUrl.split('/')[2] === userForRole?.role ? true : 0;
     if (result != 0) {
       console.log('Роль подходит');
     }

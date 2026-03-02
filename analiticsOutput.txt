@@ -108,3 +108,78 @@
         }
       }
     
+  API модуля «Чат с техподдрежкой»
+    1. Создание обращения в поддержку - POST /api/client/support-requests/
+      [
+        {
+          "id": string,
+          "createdAt": string,
+          "isActive": boolean,
+          "hasNewMessages": boolean
+        }
+      ]
+    2. Получение списка обращений в поддержку для клиента - GET /api/client/support-requests/
+      [
+        {
+          "id": string,
+          "createdAt": string,
+          "isActive": boolean,
+          "hasNewMessages": boolean
+        }
+      ]
+    3. Получение списка обращений в поддержку для менеджера - GET /api/manager/support-requests/
+      [
+        {
+          "id": string,
+          "createdAt": string,
+          "isActive": boolean,
+          "hasNewMessages": boolean,
+          "client": {
+            "id": string,
+            "name": string,
+            "email": string,
+            "contactPhone": string
+          }
+        }
+      ]
+    4. Получение истории сообщений из обращения в техподдержку - GET /api/common/support-requests/:id/messages
+      [
+        {
+          "id": string,
+          "createdAt": string,
+          "text": string,
+          "readAt": string,
+          "author": {
+            "id": string,
+            "name": string
+          }
+        }
+      ]
+    5. Отправка сообщения - POST /api/common/support-requests/:id/messages
+      [
+        {
+          "id": string,
+          "createdAt": string,
+          "text": string,
+          "readAt": string,
+          "author": {
+            "id": string,
+            "name": string
+          }
+        }
+      ]
+    6. Отправка события, что сообщения прочитаны - POST /api/common/support-requests/:id/messages/read
+      {
+        "success": true
+      }
+    7. Подписка на сообщения из чата техподдержки - message: subscribeToChat payload: chatId
+      {
+        "id": string,
+        "createdAt": string,
+        "text": string,
+        "readAt": string,
+        "author": {
+          "id": string,
+          "name": string
+        }
+      }

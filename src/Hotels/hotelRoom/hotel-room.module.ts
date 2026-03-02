@@ -8,12 +8,7 @@ import { UsersModule } from 'src/Users/users.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      {
-        name: HotelRoom.name,
-        schema: HotelRoomSchema,
-      },
-    ]),
+    MongooseModule.forFeature([{ name: HotelRoom.name, schema: HotelRoomSchema }]),
     HotelModule,
     UsersModule,
   ],

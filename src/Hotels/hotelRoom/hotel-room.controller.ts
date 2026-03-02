@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { HotelRoomService } from './hotel-room.service';
 import type { createRoomDto } from '../Interfaces/dto/createRoomDto';
-import { RoomFilesInterceptor } from '../interseptors/roomFilesInterseptor';
+import { RoomFilesInterceptor } from '../interceptors/roomFilesInterseptor';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import type { updateRoomDto } from '../Interfaces/dto/updateRoomDto';
 import type { SearchRoomsParams } from '../Interfaces/SearchRoomsParams';
