@@ -13,7 +13,12 @@ export class AuthUserGuard extends AuthGuard('local') {
     super();
   }
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const allowedUrl: string[] = [
+      '/api/common/support-requests/:id/messages',
+      '/api/common/support-requests/:id/messages/read',
+    ];
     const request = context.switchToHttp().getRequest();
+    const reqUrl: string = request.originalUrl;
     if (request.originalUrl === '/api/auth/login') {
       const validUser = (await super.canActivate(context)) as boolean;
       if (!validUser) return false;
@@ -27,8 +32,10 @@ export class AuthUserGuard extends AuthGuard('local') {
     if (!request.session.userId) {
       throw new HttpException('Пользователь не авторизован.', 401);
     }
+
+    if (allowedUrl.includes(reqUrl)) return true; // Обработку этих urls перенес в SupportRequestGuard.
+
     const userForRole = await this.userSrv.findById(request.session.userId as typeId);
-    const reqUrl: string = request.originalUrl;
     const result = reqUrl.split('/')[2] === userForRole?.role ? true : 0;
     if (result != 0) {
       console.log('Роль подходит');

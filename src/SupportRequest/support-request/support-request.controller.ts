@@ -1,19 +1,41 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import type { SendMessageDto } from '../Interfaces/dto/SendMessageDto';
 import { SupportRequestService } from './support-request.service';
 import { AuthUserGuard } from 'src/guards/auth.guard';
+import type { GetChatListParams } from '../Interfaces/GetChatListParams';
+import type { ReplyMessageClient } from '../Interfaces/ReplyMessageClient';
+import { ReplyMessageManager } from '../Interfaces/ReplyMessageManager';
 
 @Controller('/api')
 export class SupportRequestController {
   constructor(private readonly supReqSrv: SupportRequestService) {}
   @Post('/client/support-requests/')
   @UseGuards(AuthUserGuard)
-  creatingSupportTicket(@Req() req, @Body() data: SendMessageDto) {
+  async createMessage(
+    @Req() req,
+    @Body() data: SendMessageDto,
+  ): Promise<ReplyMessageClient> {
     const sessionId = req.session.userId;
     const newBody: SendMessageDto = { ...data };
     newBody.author = sessionId;
-    return this.supReqSrv.sendMessage(newBody);
+    return await this.supReqSrv.sendMessage(newBody);
+  }
+
+  @Get('/client/support-requests/')
+  @UseGuards(AuthUserGuard)
+  async getListClient(
+    @Req() req,
+    @Query() body: GetChatListParams,
+  ): Promise<ReplyMessageClient[] | ReplyMessageManager[] | undefined> {
+    const sessId: string = req.session.userId;
+    return await this.supReqSrv.findSupportRequests(body, sessId);
+  }
+
+  @Get('/manager/support-requests/')
+  @UseGuards(AuthUserGuard)
+  async getListManager(@Query() params: GetChatListParams) {
+    return await this.supReqSrv.findSupportRequests(params, '');
   }
 }
