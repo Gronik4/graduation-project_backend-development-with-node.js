@@ -12,6 +12,8 @@ import { GetChatListParams } from '../Interfaces/GetChatListParams';
 import { UsersService } from 'src/Users/users.service';
 import { ReplyMessageManager } from '../Interfaces/ReplyMessageManager';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
+import { typeId } from 'src/Users/Interfaces/param-id';
+import { CreateMessageDto } from '../Interfaces/dto/CreateMessageDto';
 
 @Injectable()
 export class SupportRequestService {
@@ -87,14 +89,30 @@ export class SupportRequestService {
     const outMess: ReplySendMessages[] = [];
     const sReq: SupportRequest | null = await this.SupRequest.findById(messId);
     if (!sReq) throw new HttpException(`Обращения с id: ${messId} не найдено.`, 404);
-    if (userId != sReq.user)
-      throw new HttpException('Пользователь не создал обращений.', 404);
+    if (userId != sReq.user) console.log('Пользователь не создал обращений.', 404);
     for (let i = 0; i < sReq.messages.length; i++) {
       const item = sReq.messages[i];
       const message = await this.messSrv.getMessage(item);
       outMess.push(message);
     }
     return outMess;
+  }
+
+  async postMessageRequest(data: SendMessageDto): Promise<ReplySendMessages[]> {
+    const newdataMess: CreateMessageDto = { author: data.author, text: data.text };
+    const newMess = await this.messSrv.createMessage(newdataMess);
+    await this.SupRequest.findByIdAndUpdate(data.supportRequest, {
+      $push: { messages: newMess.id }, // добавляем в массив messages id нового сообщения
+    });
+    const outMessages: ReplySendMessages[] = await this.getMessages(
+      data.supportRequest as string,
+      data.author as string,
+    );
+    return outMessages;
+  }
+
+  async findById(id: string | typeId): Promise<SupportRequest | null> {
+    return await this.SupRequest.findById(id);
   }
 
   outputOnceAnswer(data: SupportRequest, flag: string): ReplyMessageClient {

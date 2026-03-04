@@ -47,13 +47,13 @@ export class ReservationController {
 
   @Delete('/client/reservations/:id') // Метод проверен
   @UseGuards(AuthUserGuard, IdReservationGuard)
-  removeByClient(@Param('id') id: typeId) {
-    return this.RrnService.removeReservation(id);
+  async removeByClient(@Param('id') id: typeId): Promise<void> {
+    await this.RrnService.removeReservation(id);
   }
 
   @Delete('/manager/reservations/:id')
   @UseGuards(AuthUserGuard)
-  removeByManager(@Param('id') id: typeId) {
-    return this.RrnService.removeReservation(id);
+  async removeByManager(@Param('id') id: typeId): Promise<void> {
+    await this.RrnService.removeReservation(id);
   }
 }

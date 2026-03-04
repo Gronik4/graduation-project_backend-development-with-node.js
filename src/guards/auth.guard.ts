@@ -6,6 +6,7 @@ import { ExecutionContext, HttpException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/Users/users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { typeId } from 'src/Users/Interfaces/param-id';
+import { TestUrl } from './testUrl';
 
 @Injectable()
 export class AuthUserGuard extends AuthGuard('local') {
@@ -13,13 +14,9 @@ export class AuthUserGuard extends AuthGuard('local') {
     super();
   }
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const allowedUrl: string[] = [
-      '/api/common/support-requests/:id/messages',
-      '/api/common/support-requests/:id/messages/read',
-    ];
     const request = context.switchToHttp().getRequest();
     const reqUrl: string = request.originalUrl;
-    if (request.originalUrl === '/api/auth/login') {
+    if (reqUrl === '/api/auth/login') {
       const validUser = (await super.canActivate(context)) as boolean;
       if (!validUser) return false;
       const validateUser = this.handleRequest(null, request.user);
@@ -28,19 +25,18 @@ export class AuthUserGuard extends AuthGuard('local') {
       }
       return true;
     }
-    console.log('request.session.userId', request.session.userId);
     if (!request.session.userId) {
       throw new HttpException('Пользователь не авторизован.', 401);
     }
-
-    if (allowedUrl.includes(reqUrl)) return true; // Обработку этих urls перенес в SupportRequestGuard.
+    if (TestUrl(reqUrl)) return true; // Обработку этих urls перенес в SupportRequestGuard.
 
     const userForRole = await this.userSrv.findById(request.session.userId as typeId);
     const result = reqUrl.split('/')[2] === userForRole?.role ? true : 0;
     if (result != 0) {
-      console.log('Роль подходит');
+      console.log('Роль подходит from authGuard');
     }
-    if (result === 0) throw new HttpException('Роль пользователя не подходит.', 403);
+    if (result === 0)
+      throw new HttpException('Роль пользователя не подходит.from authGuard', 403);
     return true;
   }
 
@@ -50,22 +46,4 @@ export class AuthUserGuard extends AuthGuard('local') {
     }
     return user;
   }
-  /* Этот блок перенести в support-requests guard и доработать!!
-  checkingRights(url: string, user: User): boolean | number {
-    if (!url || !user) {
-      console.log('Оба аргумента или один из них не имеют значения');
-      return false;
-    }*/
-  /* Этот блок перенести в support-requests guard
-    const allowedUrl = [
-      pathToRegexp('/api/common/support-requests/:id/messages'),
-      pathToRegexp('/api/common/support-requests/:id/messages/read'),
-    ];
-    allowedUrl.forEach(async (item) => {
-      if (item.regexp.test(url)) {
-        void (await this.checkingId());
-      }
-    });
-    
-  }*/
 }
