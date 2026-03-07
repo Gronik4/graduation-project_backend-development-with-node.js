@@ -16,6 +16,8 @@ import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { CreateMessageDto } from '../Interfaces/dto/CreateMessageDto';
 import { SupportRequestClientService } from '../support-request-client/support-request-client.service';
+import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
+import { SupportRequestEmployeeService } from '../support-request-employee/support-request-employee.servise';
 
 @Injectable()
 export class SupportRequestService /* implements ISupportRequestService*/ {
@@ -23,6 +25,7 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
     @InjectModel(SupportRequest.name) private SupRequest: Model<SupportRequestService>,
     private readonly SupReqCliS: SupportRequestClientService,
     private readonly userSrv: UsersService,
+    private readonly SREService: SupportRequestEmployeeService,
   ) {}
   /*Метод проверен */
   async findSupportRequests(
@@ -118,5 +121,12 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
   /*Метод проверен */ // метод нужен для SupportRequestGuard.
   async findById(id: string | typeId): Promise<SupportRequest | null> {
     return await this.SupRequest.findById(id);
+  }
+
+  async prepearingStampDate(data: MarkMessagesAsReadDto) {
+    const user = await this.userSrv.findById(data.user);
+    return user?.role != 'client'
+      ? await this.SupReqCliS.markMessagesAsRead(data)
+      : this.SREService.markMessagesAsRead(data);
   }
 }

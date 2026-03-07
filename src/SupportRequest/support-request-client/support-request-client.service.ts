@@ -13,6 +13,7 @@ import { SupportRequest } from '../schemas/supportRequest.schema';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
 import { UsersService } from 'src/Users/users.service';
 import moment from 'moment';
+import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
 
 @Injectable()
 export class SupportRequestClientService /* implements ISupportRequestClientService*/ {
@@ -41,10 +42,21 @@ export class SupportRequestClientService /* implements ISupportRequestClientServ
     }
   }
 
-  /*markMessagesAsRead(params: MarkMessagesAsReadDto) {
-    throw new Error('Method not implemented.');
+  async markMessagesAsRead(params: MarkMessagesAsReadDto) {
+    const request = await this.SupReqCliS.findById(params.supportRequest);
+    if (!request)
+      throw new HttpException(
+        `Обращения с id: ${params.supportRequest as string} не найдено.`,
+        400,
+      );
+    for (let i = 0; i < request?.messages.length; i++) {
+      const item = request.messages[i];
+      const message = await this.Message.findById(item);
+      if (message?.author != params.user && !message?.readAt)
+        await this.Message.findByIdAndUpdate(item, { readAt: params.createdBefore });
+    }
   }
-
+  /*
   getUnreadCount(supportRequest: typeId): Promise<number> {
     throw new Error('Method not implemented.');
   }*/
