@@ -5,13 +5,13 @@ import { UsersModule } from './Users/users.module';
 import { HotelModule } from './Hotels/hotel/hotel.module';
 import { HotelRoomModule } from './Hotels/hotelRoom/hotel-room.module';
 import { ReservationModule } from './Reservation/reservation.module';
-import { MessageModule } from './SupportRequest/message/message.module';
 import { SupportRequestModule } from './SupportRequest/support-request/support-request.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { links } from 'project-config/links-config';
 import { AuthModule } from './auth/auth.module';
 import { SessionModule } from './session/session.module';
+import { SupportRequestClientModule } from './SupportRequest/support-request-client/support-request-client.module';
 
 @Module({
   imports: [
@@ -21,10 +21,10 @@ import { SessionModule } from './session/session.module';
     HotelModule,
     HotelRoomModule,
     ReservationModule,
-    MessageModule,
     SupportRequestModule,
     AuthModule,
     SessionModule,
+    SupportRequestClientModule,
   ],
   controllers: [AppController],
   providers: [AppService],

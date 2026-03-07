@@ -110,6 +110,7 @@
     
   API модуля «Чат с техподдрежкой»
     1. Создание обращения в поддержку - POST /api/client/support-requests/
+     interface - ReplyMessageClient
       [
         {
           "id": string,
@@ -119,6 +120,7 @@
         }
       ]
     2. Получение списка обращений в поддержку для клиента - GET /api/client/support-requests/
+      interface - ReplyMessageClient
       [
         {
           "id": string,
@@ -128,6 +130,7 @@
         }
       ]
     3. Получение списка обращений в поддержку для менеджера - GET /api/manager/support-requests/
+      interface - ReplyMessageManager
       [
         {
           "id": string,

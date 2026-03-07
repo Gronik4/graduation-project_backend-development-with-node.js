@@ -3,21 +3,21 @@ import { SupportRequestService } from './support-request.service';
 import { SupportRequestController } from './support-request.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SupportRequest, SupportRequestSchema } from '../schemas/supportRequest.schema';
-import { MessageModule } from '../message/message.module';
-import { MessageService } from '../message/message.service';
 import { AuthUserGuard } from 'src/guards/auth.guard';
 import { UsersModule } from 'src/Users/users.module';
+import { SupportRequestClientService } from '../support-request-client/support-request-client.service';
+import { Message, MessageSchema } from '../schemas/message.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: SupportRequest.name, schema: SupportRequestSchema },
+      { name: Message.name, schema: MessageSchema },
     ]),
     SupportRequestModule,
-    MessageModule,
     UsersModule,
   ],
-  providers: [SupportRequestService, MessageService, AuthUserGuard],
+  providers: [SupportRequestService, AuthUserGuard, SupportRequestClientService],
   controllers: [SupportRequestController],
 })
 export class SupportRequestModule {}

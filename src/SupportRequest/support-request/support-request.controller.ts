@@ -18,22 +18,13 @@ import type { ReplyMessageClient } from '../Interfaces/ReplyMessageClient';
 import { ReplyMessageManager } from '../Interfaces/ReplyMessageManager';
 import { SupportRequestGuard } from 'src/guards/support-request.guard';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
+import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
+import { typeId } from 'src/Users/Interfaces/param-id';
 @Controller('/api')
 export class SupportRequestController {
   constructor(private readonly supReqSrv: SupportRequestService) {}
-  @Post('/client/support-requests/')
-  @UseGuards(AuthUserGuard)
-  async createMessage(
-    @Req() req,
-    @Body() data: SendMessageDto,
-  ): Promise<ReplyMessageClient> {
-    const sessionId = req.session.userId;
-    const newBody: SendMessageDto = { ...data };
-    newBody.author = sessionId;
-    return await this.supReqSrv.sendMessage(newBody);
-  }
 
-  @Get('/client/support-requests/')
+  @Get('/client/support-requests/') //Метод проверен
   @UseGuards(AuthUserGuard)
   async getListClient(
     @Req() req,
@@ -43,19 +34,19 @@ export class SupportRequestController {
     return await this.supReqSrv.findSupportRequests(body, sessId);
   }
 
-  @Get('/manager/support-requests/')
+  @Get('/manager/support-requests/') //Метод проверен
   @UseGuards(AuthUserGuard)
   async getListManager(@Query() params: GetChatListParams) {
     return await this.supReqSrv.findSupportRequests(params, '');
   }
 
-  @Get('/common/support-requests/:id/messages')
+  @Get('/common/support-requests/:id/messages') //Метод проверен
   @UseGuards(AuthUserGuard, SupportRequestGuard)
   async getHistoryMessage(@Param('id') id: string): Promise<ReplySendMessages[]> {
     return await this.supReqSrv.getMessages(id);
   }
 
-  @Post('/common/support-requests/:id/messages')
+  @Post('/common/support-requests/:id/messages') //Метод проверен
   @UseGuards(AuthUserGuard, SupportRequestGuard)
   async postMessageRequest(
     @Param('id') paramId: string,
@@ -67,6 +58,18 @@ export class SupportRequestController {
       supportRequest: paramId,
       text: data.text,
     };
-    return await this.supReqSrv.postMessageRequest(postMReq);
+    return await this.supReqSrv.sendMessage(postMReq);
+  }
+
+  @Post('/common/support-requests/:id/messages/read')
+  @UseGuards(AuthUserGuard, SupportRequestGuard)
+  async markDateAsRead(@Param('id') supRId: string, @Req() req) {
+    const sessId = req.session.userId;
+    const readData: MarkMessagesAsReadDto = {
+      user: sessId,
+      supportRequest: supRId as typeId,
+      createdBefore: new Date(),
+    };
+    return await this.supReqSrv.prepearingStampDate(readData);
   }
 }

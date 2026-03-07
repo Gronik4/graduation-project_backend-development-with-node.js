@@ -3,11 +3,16 @@ import { GetChatListParams } from './GetChatListParams';
 import { SendMessageDto } from './dto/SendMessageDto';
 import { SupportRequest } from '../schemas/supportRequest.schema';
 import { Message } from '../schemas/message.schema';
+import { ReplyMessageManager } from './ReplyMessageManager';
+import { ReplyMessageClient } from './ReplyMessageClient';
+import { ReplySendMessages } from './ReplySendMessages';
 
 export interface ISupportRequestService {
-  findSupportRequests(params: GetChatListParams): Promise<SupportRequest[]>;
-  sendMessage(data: SendMessageDto): Promise<Message>;
-  getMessages(supportRequest: typeId): Promise<Message[]>;
+  findSupportRequests(
+    params: GetChatListParams,
+  ): Promise<ReplyMessageClient[] | ReplyMessageManager[] | undefined>;
+  sendMessage(data: SendMessageDto): Promise<ReplyMessageClient>;
+  getMessages(supportRequest: typeId): Promise<ReplySendMessages[]>;
   subscribe(
     handler: (supportRequest: SupportRequest, message: Message) => void,
   ): () => void;

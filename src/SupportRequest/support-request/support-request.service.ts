@@ -1,10 +1,11 @@
 /* eslint-disable no-useless-catch */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-base-to-string */
 import { HttpException, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { SupportRequest } from '../schemas/supportRequest.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { SendMessageDto } from '../Interfaces/dto/SendMessageDto';
-import { MessageService } from '../message/message.service';
 import { ReplyMessageClient } from '../Interfaces/ReplyMessageClient';
 import moment from 'moment';
 import 'moment/locale/ru';
@@ -14,31 +15,16 @@ import { ReplyMessageManager } from '../Interfaces/ReplyMessageManager';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { CreateMessageDto } from '../Interfaces/dto/CreateMessageDto';
+import { SupportRequestClientService } from '../support-request-client/support-request-client.service';
 
 @Injectable()
-export class SupportRequestService {
+export class SupportRequestService /* implements ISupportRequestService*/ {
   constructor(
     @InjectModel(SupportRequest.name) private SupRequest: Model<SupportRequestService>,
-    private readonly messSrv: MessageService,
+    private readonly SupReqCliS: SupportRequestClientService,
     private readonly userSrv: UsersService,
   ) {}
-  async sendMessage(data: SendMessageDto): Promise<ReplyMessageClient> {
-    if (!data) throw new HttpException('Данные в sendMessage не переданы', 400);
-    const messData = {
-      author: data.author,
-      text: data.text,
-    };
-    try {
-      const mess = await this.messSrv.createMessage(messData);
-      const newDataTicket = { user: data.author, messages: [mess.id] };
-      const newTicket = new this.SupRequest(newDataTicket);
-      await newTicket.save();
-      return this.outputOnceAnswer(newTicket as unknown as SupportRequest, 'on');
-    } catch (err) {
-      throw err;
-    }
-  }
-
+  /*Метод проверен */
   async findSupportRequests(
     params: GetChatListParams,
     userid?: string,
@@ -52,7 +38,10 @@ export class SupportRequestService {
         .select('-__v')
         .exec();
       findReq.forEach((item) => {
-        const outItem = this.outputOnceAnswer(item as unknown as SupportRequest, 'on');
+        const outItem = this.SupReqCliS.outputAnswerOnce(
+          item as unknown as SupportRequest,
+          'on',
+        );
         listCli.push(outItem);
       });
       return listCli;
@@ -84,46 +73,50 @@ export class SupportRequestService {
     }
     return listMan;
   }
-
-  async getMessages(messId: string, userId?: string): Promise<ReplySendMessages[]> {
+  /*Метод проверен */
+  async sendMessage(data: SendMessageDto): Promise<ReplySendMessages[]> {
+    const newdataMess: CreateMessageDto = { author: data.author, text: data.text };
+    const outMessages: ReplySendMessages[] = [];
+    try {
+      const newMess = await this.SupReqCliS.createMessage(newdataMess);
+      const uppdateRequest: SupportRequest | null =
+        await this.SupRequest.findByIdAndUpdate(
+          data.supportRequest,
+          {
+            $push: { messages: newMess.id }, // добавляем в массив messages id нового сообщения
+          },
+          { new: true },
+        );
+      if (!uppdateRequest)
+        throw new HttpException(
+          `Обращения с id: ${data.supportRequest} не найдено.(sendMess)`,
+          404,
+        );
+      for (let i = 0; i < uppdateRequest.messages.length; i++) {
+        const item = uppdateRequest.messages[i];
+        const outMessage = await this.SupReqCliS.getMessage(item);
+        outMessages.push(outMessage);
+      }
+      return outMessages;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /*Метод проверен */
+  async getMessages(messId: typeId | string): Promise<ReplySendMessages[]> {
     const outMess: ReplySendMessages[] = [];
-    const sReq: SupportRequest | null = await this.SupRequest.findById(messId);
-    if (!sReq) throw new HttpException(`Обращения с id: ${messId} не найдено.`, 404);
-    if (userId != sReq.user) console.log('Пользователь не создал обращений.', 404);
+    const sReq: SupportRequest | null = await this.findById(messId);
+    if (!sReq)
+      throw new HttpException(`Обращения с id: ${messId} не найдено.(getMess)`, 404);
     for (let i = 0; i < sReq.messages.length; i++) {
       const item = sReq.messages[i];
-      const message = await this.messSrv.getMessage(item);
+      const message = await this.SupReqCliS.getMessage(item);
       outMess.push(message);
     }
     return outMess;
   }
-
-  async postMessageRequest(data: SendMessageDto): Promise<ReplySendMessages[]> {
-    const newdataMess: CreateMessageDto = { author: data.author, text: data.text };
-    const newMess = await this.messSrv.createMessage(newdataMess);
-    await this.SupRequest.findByIdAndUpdate(data.supportRequest, {
-      $push: { messages: newMess.id }, // добавляем в массив messages id нового сообщения
-    });
-    const outMessages: ReplySendMessages[] = await this.getMessages(
-      data.supportRequest as string,
-      data.author as string,
-    );
-    return outMessages;
-  }
-
+  /*Метод проверен */ // метод нужен для SupportRequestGuard.
   async findById(id: string | typeId): Promise<SupportRequest | null> {
     return await this.SupRequest.findById(id);
-  }
-
-  outputOnceAnswer(data: SupportRequest, flag: string): ReplyMessageClient {
-    const dateString = moment(data.createdAt).format('D MMMM YYYY');
-    const hasNewMess = flag === 'on' ? true : false;
-    const outData = {
-      id: data.id,
-      createdAt: dateString,
-      isActive: data.isActive,
-      hasNewMessages: hasNewMess,
-    };
-    return outData;
   }
 }

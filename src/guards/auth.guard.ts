@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ExecutionContext, HttpException, Injectable } from '@nestjs/common';
-//import { pathToRegexp } from 'path-to-regexp'; // Это перенести в support-requests guard
 import { UsersService } from 'src/Users/users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { typeId } from 'src/Users/Interfaces/param-id';

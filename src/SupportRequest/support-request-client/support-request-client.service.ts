@@ -1,0 +1,91 @@
+/* eslint-disable no-useless-catch */
+import { HttpException, Injectable } from '@nestjs/common';
+//import { ISupportRequestClientService } from '../Interfaces/ISupportRequestClientService';
+import { typeId } from 'src/Users/Interfaces/param-id';
+import { CreateSupportRequestDto } from '../Interfaces/dto/CreateSupportRequestDto';
+//import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
+import { ReplyMessageClient } from '../Interfaces/ReplyMessageClient';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Message } from '../schemas/message.schema';
+import { CreateMessageDto } from '../Interfaces/dto/CreateMessageDto';
+import { SupportRequest } from '../schemas/supportRequest.schema';
+import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
+import { UsersService } from 'src/Users/users.service';
+import moment from 'moment';
+
+@Injectable()
+export class SupportRequestClientService /* implements ISupportRequestClientService*/ {
+  constructor(
+    @InjectModel(SupportRequest.name) private SupReqCliS: Model<SupportRequest>,
+    @InjectModel(Message.name) private Message: Model<Message>,
+    private readonly userSrv: UsersService,
+  ) {}
+  async createSupportRequest(data: CreateSupportRequestDto): Promise<ReplyMessageClient> {
+    if (!data) {
+      console.log('From SupReqCliS method createSupportRequest data is empty!');
+      throw new HttpException('data is empty', 404);
+    }
+    try {
+      const messageCreationData: CreateMessageDto = {
+        author: data.user,
+        text: data.text,
+      };
+      const newMess = await this.createMessage(messageCreationData);
+      const newDataTicket = { user: data.user, messages: [newMess.id] };
+      const newTicket = new this.SupReqCliS(newDataTicket);
+      await newTicket.save();
+      return this.outputAnswerOnce(newTicket as unknown as SupportRequest, 'on');
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  /*markMessagesAsRead(params: MarkMessagesAsReadDto) {
+    throw new Error('Method not implemented.');
+  }
+
+  getUnreadCount(supportRequest: typeId): Promise<number> {
+    throw new Error('Method not implemented.');
+  }*/
+
+  async createMessage(data: CreateMessageDto): Promise<Message> {
+    const newMess = new this.Message(data);
+    await newMess.save();
+    return newMess;
+  }
+
+  async getMessage(messId: typeId | string): Promise<ReplySendMessages> {
+    const message = await this.Message.findById(messId).select(
+      'id sentAt text readAt author',
+    );
+    if (message) {
+      const user = await this.userSrv.findById(message.author);
+      const getMess: ReplySendMessages = {
+        id: message.id,
+        createdAt: moment(message.sentAt).format('D MMMM YYYY'),
+        text: message.text,
+        readAt: message.readAt ? moment(message.readAt).format('D MMMM YYYY') : '',
+        author: {
+          id: user?.id.toString(),
+          name: user?.name,
+        },
+      };
+      return getMess;
+    } else {
+      throw new HttpException('Ни одного сообщения не найдено!', 404);
+    }
+  }
+
+  outputAnswerOnce(data: SupportRequest, flag: string): ReplyMessageClient {
+    const dateString = moment(data.createdAt).format('D MMMM YYYY');
+    const hasNewMess = flag === 'on' ? true : false;
+    const outData = {
+      id: data.id,
+      createdAt: dateString,
+      isActive: data.isActive,
+      hasNewMessages: hasNewMess,
+    };
+    return outData;
+  }
+}
