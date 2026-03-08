@@ -18,6 +18,7 @@ import { CreateMessageDto } from '../Interfaces/dto/CreateMessageDto';
 import { SupportRequestClientService } from '../support-request-client/support-request-client.service';
 import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
 import { SupportRequestEmployeeService } from '../support-request-employee/support-request-employee.servise';
+import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';
 
 @Injectable()
 export class SupportRequestService /* implements ISupportRequestService*/ {
@@ -127,6 +128,13 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
     const user = await this.userSrv.findById(data.user);
     return user?.role != 'client'
       ? await this.SRCService.markMessagesAsRead(data)
-      : this.SREService.markMessagesAsRead(data);
+      : await this.SREService.markMessagesAsRead(data);
+  }
+
+  async prepearingCountMess(data: GetUnreadDto) {
+    const user = await this.userSrv.findById(data.userId);
+    return user?.role != 'client'
+      ? await this.SRCService.getUnreadCount(data)
+      : await this.SREService.getUnreadCount(data);
   }
 }

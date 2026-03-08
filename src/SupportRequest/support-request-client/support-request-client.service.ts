@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-catch */
 import { HttpException, Injectable } from '@nestjs/common';
-//import { ISupportRequestClientService } from '../Interfaces/ISupportRequestClientService';
+import { ISupportRequestClientService } from '../Interfaces/ISupportRequestClientService';
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { CreateSupportRequestDto } from '../Interfaces/dto/CreateSupportRequestDto';
 //import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
@@ -14,9 +14,10 @@ import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
 import { UsersService } from 'src/Users/users.service';
 import moment from 'moment';
 import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
+import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';
 
 @Injectable()
-export class SupportRequestClientService /* implements ISupportRequestClientService*/ {
+export class SupportRequestClientService implements ISupportRequestClientService {
   constructor(
     @InjectModel(SupportRequest.name) private SRCService: Model<SupportRequest>,
     @InjectModel(Message.name) private Message: Model<Message>,
@@ -57,15 +58,22 @@ export class SupportRequestClientService /* implements ISupportRequestClientServ
           await this.Message.findByIdAndUpdate(item, { readAt: params.createdBefore });
         }
       }
-      return { text: 'from SRCService', success: true };
+      return { success: true };
     } catch (err) {
       throw err;
     }
   }
-  /*
-  getUnreadCount(supportRequest: typeId): Promise<number> {
-    throw new Error('Method not implemented.');
-  }*/
+
+  async getUnreadCount(data: GetUnreadDto): Promise<number> {
+    const allMess = await this.SRCService.findById(data.supRId);
+    if (!allMess || !allMess.messages)
+      throw new HttpException('В данном запросе нет сообщений', 400);
+    return this.Message.countDocuments({
+      _id: { $in: allMess.messages },
+      author: { $ne: data.userId },
+      readAt: null,
+    });
+  }
 
   async createMessage(data: CreateMessageDto): Promise<Message> {
     const newMess = new this.Message(data);

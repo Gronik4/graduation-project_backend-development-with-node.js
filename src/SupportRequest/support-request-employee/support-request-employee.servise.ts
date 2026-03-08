@@ -5,6 +5,7 @@ import { SupportRequest } from '../schemas/supportRequest.schema';
 import { Model } from 'mongoose';
 import { Message } from '../schemas/message.schema';
 import { SupportRequestClientService } from '../support-request-client/support-request-client.service';
+import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';
 //import { ISupportRequestEmployeeService } from '../Interfaces/ISupportRequestEmployeeService';
 
 @Injectable()
@@ -14,7 +15,12 @@ export class SupportRequestEmployeeService /*implements ISupportRequestEmployeeS
     @InjectModel(Message.name) private Message: Model<Message>,
     private readonly SRCService: SupportRequestClientService,
   ) {}
+
   async markMessagesAsRead(params: MarkMessagesAsReadDto) {
     return this.SRCService.markMessagesAsRead(params);
+  }
+
+  async getUnreadCount(data: GetUnreadDto) {
+    return this.SRCService.getUnreadCount(data);
   }
 }

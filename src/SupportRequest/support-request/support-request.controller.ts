@@ -20,6 +20,7 @@ import { SupportRequestGuard } from 'src/guards/support-request.guard';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
 import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
 import { typeId } from 'src/Users/Interfaces/param-id';
+import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';
 @Controller('/api')
 export class SupportRequestController {
   constructor(private readonly supReqSrv: SupportRequestService) {}
@@ -71,5 +72,16 @@ export class SupportRequestController {
       createdBefore: new Date(),
     };
     return await this.supReqSrv.prepearingStampDate(readData);
+  }
+
+  @Get('/common/support-requests/:id/messages/read')
+  @UseGuards(AuthUserGuard, SupportRequestGuard)
+  async getUnreadCount(@Param('id') supRId: string, @Req() req) {
+    const sessId = req.session.userId;
+    const data: GetUnreadDto = {
+      supRId: supRId as typeId,
+      userId: sessId,
+    };
+    return await this.supReqSrv.prepearingCountMess(data);
   }
 }
