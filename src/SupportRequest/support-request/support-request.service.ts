@@ -23,7 +23,7 @@ import { SupportRequestEmployeeService } from '../support-request-employee/suppo
 export class SupportRequestService /* implements ISupportRequestService*/ {
   constructor(
     @InjectModel(SupportRequest.name) private SupRequest: Model<SupportRequestService>,
-    private readonly SupReqCliS: SupportRequestClientService,
+    private readonly SRCService: SupportRequestClientService,
     private readonly userSrv: UsersService,
     private readonly SREService: SupportRequestEmployeeService,
   ) {}
@@ -41,7 +41,7 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
         .select('-__v')
         .exec();
       findReq.forEach((item) => {
-        const outItem = this.SupReqCliS.outputAnswerOnce(
+        const outItem = this.SRCService.outputAnswerOnce(
           item as unknown as SupportRequest,
           'on',
         );
@@ -81,7 +81,7 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
     const newdataMess: CreateMessageDto = { author: data.author, text: data.text };
     const outMessages: ReplySendMessages[] = [];
     try {
-      const newMess = await this.SupReqCliS.createMessage(newdataMess);
+      const newMess = await this.SRCService.createMessage(newdataMess);
       const uppdateRequest: SupportRequest | null =
         await this.SupRequest.findByIdAndUpdate(
           data.supportRequest,
@@ -97,7 +97,7 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
         );
       for (let i = 0; i < uppdateRequest.messages.length; i++) {
         const item = uppdateRequest.messages[i];
-        const outMessage = await this.SupReqCliS.getMessage(item);
+        const outMessage = await this.SRCService.getMessage(item);
         outMessages.push(outMessage);
       }
       return outMessages;
@@ -113,7 +113,7 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
       throw new HttpException(`Обращения с id: ${messId} не найдено.(getMess)`, 404);
     for (let i = 0; i < sReq.messages.length; i++) {
       const item = sReq.messages[i];
-      const message = await this.SupReqCliS.getMessage(item);
+      const message = await this.SRCService.getMessage(item);
       outMess.push(message);
     }
     return outMess;
@@ -126,7 +126,7 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
   async prepearingStampDate(data: MarkMessagesAsReadDto) {
     const user = await this.userSrv.findById(data.user);
     return user?.role != 'client'
-      ? await this.SupReqCliS.markMessagesAsRead(data)
+      ? await this.SRCService.markMessagesAsRead(data)
       : this.SREService.markMessagesAsRead(data);
   }
 }

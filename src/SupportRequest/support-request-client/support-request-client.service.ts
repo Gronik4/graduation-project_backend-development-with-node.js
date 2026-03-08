@@ -18,13 +18,13 @@ import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
 @Injectable()
 export class SupportRequestClientService /* implements ISupportRequestClientService*/ {
   constructor(
-    @InjectModel(SupportRequest.name) private SupReqCliS: Model<SupportRequest>,
+    @InjectModel(SupportRequest.name) private SRCService: Model<SupportRequest>,
     @InjectModel(Message.name) private Message: Model<Message>,
     private readonly userSrv: UsersService,
   ) {}
   async createSupportRequest(data: CreateSupportRequestDto): Promise<ReplyMessageClient> {
     if (!data) {
-      console.log('From SupReqCliS method createSupportRequest data is empty!');
+      console.log('From SRCService method createSupportRequest data is empty!');
       throw new HttpException('data is empty', 404);
     }
     try {
@@ -34,7 +34,7 @@ export class SupportRequestClientService /* implements ISupportRequestClientServ
       };
       const newMess = await this.createMessage(messageCreationData);
       const newDataTicket = { user: data.user, messages: [newMess.id] };
-      const newTicket = new this.SupReqCliS(newDataTicket);
+      const newTicket = new this.SRCService(newDataTicket);
       await newTicket.save();
       return this.outputAnswerOnce(newTicket as unknown as SupportRequest, 'on');
     } catch (err) {
@@ -43,17 +43,23 @@ export class SupportRequestClientService /* implements ISupportRequestClientServ
   }
 
   async markMessagesAsRead(params: MarkMessagesAsReadDto) {
-    const request = await this.SupReqCliS.findById(params.supportRequest);
+    const request = await this.SRCService.findById(params.supportRequest);
     if (!request)
       throw new HttpException(
         `Обращения с id: ${params.supportRequest as string} не найдено.`,
         400,
       );
-    for (let i = 0; i < request?.messages.length; i++) {
-      const item = request.messages[i];
-      const message = await this.Message.findById(item);
-      if (message?.author != params.user && !message?.readAt)
-        await this.Message.findByIdAndUpdate(item, { readAt: params.createdBefore });
+    try {
+      for (let i = 0; i < request?.messages.length; i++) {
+        const item = request.messages[i];
+        const message = await this.Message.findById(item);
+        if (message?.author != params.user && !message?.readAt) {
+          await this.Message.findByIdAndUpdate(item, { readAt: params.createdBefore });
+        }
+      }
+      return { text: 'from SRCService', success: true };
+    } catch (err) {
+      throw err;
     }
   }
   /*

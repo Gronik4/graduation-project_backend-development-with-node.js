@@ -7,6 +7,7 @@ import { AuthUserGuard } from 'src/guards/auth.guard';
 import { UsersModule } from 'src/Users/users.module';
 import { SupportRequestClientService } from '../support-request-client/support-request-client.service';
 import { Message, MessageSchema } from '../schemas/message.schema';
+import { SupportRequestEmployeeService } from '../support-request-employee/support-request-employee.servise';
 
 @Module({
   imports: [
@@ -17,7 +18,12 @@ import { Message, MessageSchema } from '../schemas/message.schema';
     SupportRequestModule,
     UsersModule,
   ],
-  providers: [SupportRequestService, AuthUserGuard, SupportRequestClientService],
+  providers: [
+    SupportRequestService,
+    AuthUserGuard,
+    SupportRequestClientService,
+    SupportRequestEmployeeService,
+  ],
   controllers: [SupportRequestController],
 })
 export class SupportRequestModule {}
