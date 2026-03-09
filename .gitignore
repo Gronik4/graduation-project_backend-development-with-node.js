@@ -1,4 +1,6 @@
 node_modules
 dist
-errors.txt
-
+Initial-data.txt
+analiticsUrl.txt
+analiticsOutput.txt
+.env

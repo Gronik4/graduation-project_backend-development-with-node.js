@@ -19,9 +19,12 @@ import { SupportRequestClientService } from '../support-request-client/support-r
 import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
 import { SupportRequestEmployeeService } from '../support-request-employee/support-request-employee.servise';
 import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';
+import { ISupportRequestService } from '../Interfaces/ISupportRequestService';
+import { Message } from '../schemas/message.schema';
+import { eventEmitter, SupportMessageEvent } from './events';
 
 @Injectable()
-export class SupportRequestService /* implements ISupportRequestService*/ {
+export class SupportRequestService implements ISupportRequestService {
   constructor(
     @InjectModel(SupportRequest.name) private SupRequest: Model<SupportRequestService>,
     private readonly SRCService: SupportRequestClientService,
@@ -78,9 +81,8 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
     return listMan;
   }
   /*Метод проверен */
-  async sendMessage(data: SendMessageDto): Promise<ReplySendMessages[]> {
+  async sendMessage(data: SendMessageDto): Promise<ReplySendMessages> {
     const newdataMess: CreateMessageDto = { author: data.author, text: data.text };
-    const outMessages: ReplySendMessages[] = [];
     try {
       const newMess = await this.SRCService.createMessage(newdataMess);
       const uppdateRequest: SupportRequest | null =
@@ -96,12 +98,7 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
           `Обращения с id: ${data.supportRequest} не найдено.(sendMess)`,
           404,
         );
-      for (let i = 0; i < uppdateRequest.messages.length; i++) {
-        const item = uppdateRequest.messages[i];
-        const outMessage = await this.SRCService.getMessage(item);
-        outMessages.push(outMessage);
-      }
-      return outMessages;
+      return await this.SRCService.getMessage(uppdateRequest.user);
     } catch (err) {
       throw err;
     }
@@ -122,6 +119,19 @@ export class SupportRequestService /* implements ISupportRequestService*/ {
   /*Метод проверен */ // метод нужен для SupportRequestGuard.
   async findById(id: string | typeId): Promise<SupportRequest | null> {
     return await this.SupRequest.findById(id);
+  }
+
+  subscribe(
+    handler: (supportRequest: SupportRequest, message: Message) => void,
+  ): () => void {
+    eventEmitter.on('new-message', handler);
+    return () => {
+      eventEmitter.off('new-message', handler);
+    };
+  }
+
+  emitNewMessage(requestId: string, message: any) {
+    eventEmitter.emit('new-message', new SupportMessageEvent(requestId, message));
   }
 
   async prepearingStampDate(data: MarkMessagesAsReadDto) {

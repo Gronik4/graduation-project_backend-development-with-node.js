@@ -1,9 +1,10 @@
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { MarkMessagesAsReadDto } from './dto/MarkMessagesAsReadDto';
+import { GetUnreadDto } from './dto/GetUnreadDto';
 
 export interface ISupportRequestEmployeeService {
   markMessagesAsRead(params: MarkMessagesAsReadDto);
-  getUnreadCount(supportRequest: typeId): Promise<number>;
+  getUnreadCount(data: GetUnreadDto): Promise<number>;
   closeRequest(supportRequest: typeId): Promise<void>;
 }
 

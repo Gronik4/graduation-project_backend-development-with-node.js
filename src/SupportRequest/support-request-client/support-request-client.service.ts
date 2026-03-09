@@ -3,7 +3,6 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { ISupportRequestClientService } from '../Interfaces/ISupportRequestClientService';
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { CreateSupportRequestDto } from '../Interfaces/dto/CreateSupportRequestDto';
-//import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
 import { ReplyMessageClient } from '../Interfaces/ReplyMessageClient';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';

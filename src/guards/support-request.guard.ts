@@ -15,15 +15,12 @@ export class SupportRequestGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const reqUrl: string = request.originalUrl;
-    console.log('From SupportRequestGuard TestUrl:', TestUrl(reqUrl));
     if (TestUrl(reqUrl)) {
       const sessId: string = request.session.userId;
       const ticketId: string = request.params.id;
       const ticket = await this.supReqSrv.findById(ticketId);
       const userForRole = await this.userSrv.findById(sessId as typeId);
       const userRole = userForRole?.role;
-      console.log('From SupportRequestGuard userId: ', sessId);
-      console.log('From SupportRequestGuard ticketAuthor: ', ticket?.user);
       if (ticket?.user != sessId && userRole != 'manager')
         throw new HttpException(
           'Пользователь может работать с сообщениями только в своих запросах.',

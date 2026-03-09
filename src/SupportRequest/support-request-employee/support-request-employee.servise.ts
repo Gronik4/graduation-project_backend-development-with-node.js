@@ -6,10 +6,11 @@ import { Model } from 'mongoose';
 import { Message } from '../schemas/message.schema';
 import { SupportRequestClientService } from '../support-request-client/support-request-client.service';
 import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';
-//import { ISupportRequestEmployeeService } from '../Interfaces/ISupportRequestEmployeeService';
+import { typeId } from 'src/Users/Interfaces/param-id';
+import { ISupportRequestEmployeeService } from '../Interfaces/ISupportRequestEmployeeService';
 
 @Injectable()
-export class SupportRequestEmployeeService /*implements ISupportRequestEmployeeService */ {
+export class SupportRequestEmployeeService implements ISupportRequestEmployeeService {
   constructor(
     @InjectModel(SupportRequest.name) private SREService: Model<SupportRequest>,
     @InjectModel(Message.name) private Message: Model<Message>,
@@ -22,5 +23,9 @@ export class SupportRequestEmployeeService /*implements ISupportRequestEmployeeS
 
   async getUnreadCount(data: GetUnreadDto) {
     return this.SRCService.getUnreadCount(data);
+  }
+
+  async closeRequest(supportRequest: typeId): Promise<void> {
+    await this.SREService.findByIdAndUpdate(supportRequest, { isActive: false });
   }
 }

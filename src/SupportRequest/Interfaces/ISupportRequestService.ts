@@ -11,7 +11,7 @@ export interface ISupportRequestService {
   findSupportRequests(
     params: GetChatListParams,
   ): Promise<ReplyMessageClient[] | ReplyMessageManager[] | undefined>;
-  sendMessage(data: SendMessageDto): Promise<ReplyMessageClient>;
+  sendMessage(data: SendMessageDto): Promise<ReplySendMessages>;
   getMessages(supportRequest: typeId): Promise<ReplySendMessages[]>;
   subscribe(
     handler: (supportRequest: SupportRequest, message: Message) => void,

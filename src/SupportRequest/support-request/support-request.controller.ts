@@ -53,13 +53,15 @@ export class SupportRequestController {
     @Param('id') paramId: string,
     @Body() data: SendMessageDto,
     @Req() req,
-  ): Promise<ReplySendMessages[]> {
+  ): Promise<ReplySendMessages> {
     const postMReq: SendMessageDto = {
       author: req.session.userId,
       supportRequest: paramId,
       text: data.text,
     };
-    return await this.supReqSrv.sendMessage(postMReq);
+    const newMess = await this.supReqSrv.sendMessage(postMReq);
+    this.supReqSrv.emitNewMessage(postMReq.supportRequest as string, newMess);
+    return newMess;
   }
 
   @Post('/common/support-requests/:id/messages/read')
