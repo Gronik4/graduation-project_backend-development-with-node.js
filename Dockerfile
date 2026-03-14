@@ -1,24 +1,26 @@
-FROM node:22.15.1-alpine
+FROM node:22.15.1-alpine AS builder
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
+COPY ["package.json", "./"]
+# RUN if [ ! -f package.json ]; then echo "ERROR: package.json missing"; exit 1; fi
 RUN npm install
 
-COPY . .
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# Копируем исходники проекта
+COPY ./dist .
+COPY ./project-config .
+COPY ./.env .
 
 RUN npm run build
 
 FROM node:lts-slim
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/project-config ./project-config
-COPY --from=builder /app/.env ./
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/project-config ./project-config
+COPY --from=builder /usr/src/app/.env ./
 
 EXPOSE ${HTTP_PORT}
 
