@@ -45,4 +45,5 @@
     TypeError: Cannot read properties of undefined (reading 'findById')
   Решение: В SupportRequestModule, в imports: добавил UsersModule
 ****************************Ошибки Docker*********************************************
-  1.npm error code ENOENT - Ошибка означает, что программа пытается обратиться к файлу или ресурсу, которого не существует или путь к нему некорректен. 
+  1.Docker сначала не видел package.json, теперь не видит  tsconfig.json......
+    попробую все сохранить и перезапустить VSCode....

@@ -1,7 +1,9 @@
 services:
   nest-app:
     container_name: diploma-node.js
-    build: .
+    image: diploma-node.js:latest
+    build: 
+      context: .
     ports:
       - "${HTTP_PORTS:-3001}:${HTTP_PORTS:-3001}"
 
