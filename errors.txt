@@ -45,5 +45,9 @@
     TypeError: Cannot read properties of undefined (reading 'findById')
   Решение: В SupportRequestModule, в imports: добавил UsersModule
 ****************************Ошибки Docker*********************************************
-  1.Docker сначала не видел package.json, теперь не видит  tsconfig.json......
-    попробую все сохранить и перезапустить VSCode....
+  1.Docker не видит package.json.
+    Решение: в Dockterfile после: WORKDIR /usr/app, добавил строку: COPY --from=builder /usr/app/package*.json .
+  
+  2. Docker не видит @nestjs/core - Error: Cannot find module '@nestjs/core', хотя в package.json, в dependencies есть: "@nestjs/core": "^11.0.1",
+    Решение: в Dockterfile, после COPY --from=builder /usr/app/package*.json . добавил: COPY --from=builder /usr/app/node_modules ./node_modules
+    Все заработало!!
