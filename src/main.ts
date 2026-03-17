@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import { UserSecret } from 'project-config/token_config';
+import { keys } from 'project-config/keys-config';
 import { links } from 'project-config/links-config';
 
 async function bootstrap() {
@@ -10,7 +10,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(
     session({
-      secret: UserSecret.SeSSSct || 'notSecret',
+      secret: keys.SeSSSct || 'notSecret',
       resave: false,
       saveUninitialized: false,
       cookie: { secure: process.env.NODE_ENV === 'production' },

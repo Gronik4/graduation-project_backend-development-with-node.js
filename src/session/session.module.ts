@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MemoryStore } from 'express-session';
-import { UserSecret } from 'project-config/token_config';
+import { keys } from 'project-config/keys-config';
 
 @Module({
   imports: [],
@@ -8,7 +8,7 @@ import { UserSecret } from 'project-config/token_config';
     {
       provide: 'SESSION_OPTIONS',
       useValue: {
-        secret: UserSecret.SeSSSct || 'secret-key',
+        secret: keys.SeSSSct || 'secret-key',
         resave: false,
         saveUninitialized: false,
         store: new MemoryStore(),

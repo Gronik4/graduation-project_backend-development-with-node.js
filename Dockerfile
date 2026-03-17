@@ -2,6 +2,8 @@ FROM node:22.15.1-alpine AS builder
 
 WORKDIR /usr/app
 
+COPY package*.json ./
+
 RUN npm install
 
 COPY . /usr/app
