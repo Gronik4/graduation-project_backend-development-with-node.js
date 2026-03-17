@@ -25,7 +25,8 @@
   - Multer;
   - bcrypt.js;
   - Moment.js;
-  - Nano ID.
+  - Nano ID.  
+  - Docker
 
 #### Рекомендации по запуску проекта:  
   
