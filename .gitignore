@@ -1,6 +1,5 @@
 node_modules
 dist
-Initial-data.txt
 analiticsUrl.txt
 analiticsOutput.txt
 .env
