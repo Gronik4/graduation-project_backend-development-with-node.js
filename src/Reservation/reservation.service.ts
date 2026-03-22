@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable no-constant-condition */
 /* eslint-disable no-useless-catch */
 import { HttpException, Injectable } from '@nestjs/common';
 import { Reservation, ReservationDocument } from './schemas/reservation.schema';
@@ -17,6 +15,7 @@ import { ReservationDto } from './Interfaces/dto/ReservationDto';
 import { IReservation } from './Interfaces/IReservation';
 import { ReservationSearchOptions } from './Interfaces/ReservationSearchOptions';
 import { ReservationFilters } from './Interfaces/ReservationFilters';
+//import { ReservationFilters } from './Interfaces/ReservationFilters';
 
 @Injectable()
 export class ReservationService implements IReservation {
@@ -70,30 +69,20 @@ export class ReservationService implements IReservation {
   ): Promise<outReservation[] | string> {
     const outReserve: outReservation[] = [];
     const filter: ReservationFilters = {};
-    if (params.userId) filter.userId = { $regex: params.userId as string };
-    if (params.dateStart) filter.dateStart = { $regex: new Date(params.dateStart) };
-    if (params.dateEnd) filter.dateEnd = { $regex: new Date(params.dateEnd) };
-    if ((Object.keys(filter).length = 0)) {
-      throw new HttpException('Ни по одному полю совпадений не найдено', 400);
-    } else {
-      const foundArray: ReservationDocument[] = [];
-      let found: object;
-      for (found of Object.entries(filter)) {
-        const reserves = await this.reservationModel
-          .find({ [found[0]]: found[1] })
-          .select('-__v')
-          .exec();
-        if (reserves.length != 0) {
-          const merge = reserves.filter(
-            (item2) => !foundArray.some((item1) => item1._id === item2._id),
-          );
-          foundArray.push(...merge);
-        }
-      }
-      for (const i of foundArray) {
-        const output = await this.dataOutput(i._id);
-        outReserve.push(output as outReservation);
-      }
+    const { userId, dateStart, dateEnd } = params;
+    if (userId) filter.userId = { $regex: userId as string };
+    if (dateStart) filter.dateStart = { $eq: dateStart };
+    if (dateEnd) filter.dateEnd = { $eq: dateEnd };
+    if (Object.keys(filter).length === 0) {
+      throw new HttpException('Необходимо указать хотя бы один параметр для поиска', 400);
+    }
+    const reserves = await this.reservationModel
+      .find<ReservationDocument>(filter)
+      .select('-__v')
+      .exec();
+    for (const i of reserves) {
+      const output = await this.dataOutput(i._id);
+      outReserve.push(output as outReservation);
     }
     return outReserve;
   }

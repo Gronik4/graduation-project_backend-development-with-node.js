@@ -18,6 +18,7 @@ import { CreateReserveInterceptor } from './interceptors/createReserveIntercepto
 import type { ReservationSearchOptions } from './Interfaces/ReservationSearchOptions';
 import { AuthUserGuard } from 'src/guards/auth.guard';
 import { IdReservationGuard } from 'src/guards/id-reservation.guard';
+import moment from 'moment';
 
 @Controller('/api')
 export class ReservationController {
@@ -40,8 +41,16 @@ export class ReservationController {
 
   @Get('/manager/reservations/:id') //Метод проверен
   @UseGuards(AuthUserGuard)
-  getReservations(@Param('id') id: string) {
-    const filters: ReservationSearchOptions = { userId: id as typeId };
+  getReservations(
+    @Param('id, dateStart, dateEnd') id: string,
+    dateStart?: string,
+    dateEnd?: string,
+  ) {
+    const filters: ReservationSearchOptions = {
+      userId: id as typeId,
+      dateStart: moment(dateStart).toDate(),
+      dateEnd: moment(dateEnd).toDate(),
+    };
     return this.RrnService.getReservations(filters);
   }
 

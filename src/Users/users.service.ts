@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /* eslint-disable no-useless-catch */
 import { HttpException, Injectable } from '@nestjs/common';
@@ -11,7 +10,7 @@ import { createUserDto } from './Interfaces/dto/createUserDto';
 import { IUserService } from './Interfaces/IUserService';
 import { generate } from 'generate-password';
 import * as bcrypt from 'bcrypt';
-import { UserFilters } from './Interfaces/userFilters';
+//import { UserFilters } from './Interfaces/userFilters';
 
 @Injectable()
 export class UsersService implements IUserService {
@@ -75,39 +74,23 @@ export class UsersService implements IUserService {
     }
   }
   /*Метод проверен */
-  async findAll(params: SearchUserParams): Promise<UserDocument[] | string> {
-    const filters: UserFilters = {};
-    const findUsers: UserDocument[] = [];
-    if (params.name) filters.name = { $regex: params.name, $options: 'i' };
-    if (params.email) filters.email = { $regex: params.email, $options: 'i' };
-    if (params.contactPhone) filters.contactPhone = { $regex: params.contactPhone };
+  async findAll(params: SearchUserParams): Promise<UserDocument[]> {
+    const name = params.name?.trim();
+    const email = params.email?.trim();
+    const contactPhone = params.contactPhone?.trim();
 
-    if (Object.keys(filters).length === 0) {
-      throw new HttpException('Ни по одному полю совпадений не найдено', 400);
-    } else {
-      /**
-       * return this.UserModel.find(filters)
-        .limit(params.limit)
-        .skip(params.offset)
-        .select(this.fields)
-        .exec();
-        Так не работает! Выдает пустой массив!!
-        Т.К. Один запрос со всеми фильтрами в MongoDB по умолчанию использует логику И.
-        Ниже - рабочее решение.
-       */
-      let value: object;
-      for (value of Object.entries(filters)) {
-        const found = await this.UserModel.find({ [value[0]]: value[1] })
-          .select(this.fields)
-          .exec();
-        if (found.length != 0) {
-          const merge = found.filter(
-            (item2) => !findUsers.some((item1) => item1.email === item2.email),
-          );
-          findUsers.push(...merge);
-        }
-      }
-      return findUsers.slice(params.offset, params.offset + params.limit);
+    const filters: any[] = [];
+    if (name) filters.push({ name: { $regex: name, $options: 'i' } });
+    if (email) filters.push({ email: { $regex: email, $options: 'i' } });
+    if (contactPhone) filters.push({ contactPhone: { $regex: contactPhone } });
+
+    if (filters.length === 0) {
+      throw new HttpException('Необходимо указать хотя бы один параметр для поиска', 400);
     }
+    return await this.UserModel.find<UserDocument>({ $or: filters })
+      .limit(params.limit)
+      .skip(params.offset)
+      .select(this.fields)
+      .exec();
   }
 }
