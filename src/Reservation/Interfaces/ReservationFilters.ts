@@ -1,5 +1,5 @@
 export interface ReservationFilters {
-  userId?: { $regex: string };
+  userId?: { $eq: string };
   dateStart?: { $eq: Date };
   dateEnd?: { $eq: Date };
 }

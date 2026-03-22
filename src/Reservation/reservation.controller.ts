@@ -5,8 +5,10 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -42,15 +44,18 @@ export class ReservationController {
   @Get('/manager/reservations/:id') //Метод проверен
   @UseGuards(AuthUserGuard)
   getReservations(
-    @Param('id, dateStart, dateEnd') id: string,
-    dateStart?: string,
-    dateEnd?: string,
+    @Param('id') id: string,
+    @Query('dateStart') dateStart?: string,
+    @Query('dateEnd') dateEnd?: string,
   ) {
-    const filters: ReservationSearchOptions = {
-      userId: id as typeId,
-      dateStart: moment(dateStart).toDate(),
-      dateEnd: moment(dateEnd).toDate(),
-    };
+    const dateFormatRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+    if (dateStart && !dateFormatRegex.test(dateStart))
+      throw new HttpException('Параметр dateStart должен быть в формате ГГГГ-ММ-ДД', 400);
+    if (dateEnd && !dateFormatRegex.test(dateEnd))
+      throw new HttpException('Параметр dateEnd должен быть в формате ГГГГ-ММ-ДД', 400);
+    const filters: ReservationSearchOptions = { userId: id as typeId };
+    if (dateStart) filters.dateStart = moment(dateStart).toDate();
+    if (dateEnd) filters.dateStart = moment(dateEnd).toDate();
     return this.RrnService.getReservations(filters);
   }
 

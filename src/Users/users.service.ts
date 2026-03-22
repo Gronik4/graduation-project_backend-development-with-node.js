@@ -10,7 +10,6 @@ import { createUserDto } from './Interfaces/dto/createUserDto';
 import { IUserService } from './Interfaces/IUserService';
 import { generate } from 'generate-password';
 import * as bcrypt from 'bcrypt';
-//import { UserFilters } from './Interfaces/userFilters';
 
 @Injectable()
 export class UsersService implements IUserService {

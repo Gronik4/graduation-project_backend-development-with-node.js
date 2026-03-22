@@ -15,7 +15,6 @@ import { ReservationDto } from './Interfaces/dto/ReservationDto';
 import { IReservation } from './Interfaces/IReservation';
 import { ReservationSearchOptions } from './Interfaces/ReservationSearchOptions';
 import { ReservationFilters } from './Interfaces/ReservationFilters';
-//import { ReservationFilters } from './Interfaces/ReservationFilters';
 
 @Injectable()
 export class ReservationService implements IReservation {
@@ -70,7 +69,7 @@ export class ReservationService implements IReservation {
     const outReserve: outReservation[] = [];
     const filter: ReservationFilters = {};
     const { userId, dateStart, dateEnd } = params;
-    if (userId) filter.userId = { $regex: userId as string };
+    if (userId) filter.userId = { $eq: userId as string };
     if (dateStart) filter.dateStart = { $eq: dateStart };
     if (dateEnd) filter.dateEnd = { $eq: dateEnd };
     if (Object.keys(filter).length === 0) {
