@@ -2,9 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { User, UserDocument } from 'src/Users/schemas/user.schema';
+import { User, UserDocument } from '../Users/schemas/user.schema';
 import type { RegistrAuthDto } from './dto/registr.auth.dto';
-import { AuthUserGuard } from 'src/guards/auth.guard';
+import { AuthUserGuard } from '../guards/auth.guard';
 
 @Controller('/api')
 export class AuthController {

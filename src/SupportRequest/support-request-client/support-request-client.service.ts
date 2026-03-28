@@ -10,7 +10,7 @@ import { Message } from '../schemas/message.schema';
 import { CreateMessageDto } from '../Interfaces/dto/CreateMessageDto';
 import { SupportRequest } from '../schemas/supportRequest.schema';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
-import { UsersService } from 'src/Users/users.service';
+import { UsersService } from '../../Users/users.service';
 import moment from 'moment';
 import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
 import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';

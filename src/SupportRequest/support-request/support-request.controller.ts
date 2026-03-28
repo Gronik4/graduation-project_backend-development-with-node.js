@@ -12,14 +12,14 @@ import {
 } from '@nestjs/common';
 import type { SendMessageDto } from '../Interfaces/dto/SendMessageDto';
 import { SupportRequestService } from './support-request.service';
-import { AuthUserGuard } from 'src/guards/auth.guard';
+import { AuthUserGuard } from '../../guards/auth.guard';
 import type { GetChatListParams } from '../Interfaces/GetChatListParams';
 import type { ReplyMessageClient } from '../Interfaces/ReplyMessageClient';
 import { ReplyMessageManager } from '../Interfaces/ReplyMessageManager';
-import { SupportRequestGuard } from 'src/guards/support-request.guard';
+import { SupportRequestGuard } from '../../guards/support-request.guard';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
 import { MarkMessagesAsReadDto } from '../Interfaces/dto/MarkMessagesAsReadDto';
-import { typeId } from 'src/Users/Interfaces/param-id';
+import { typeId } from '../../Users/Interfaces/param-id';
 import { GetUnreadDto } from '../Interfaces/dto/GetUnreadDto';
 @Controller('/api')
 export class SupportRequestController {

@@ -6,8 +6,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { User, UserDocument } from 'src/Users/schemas/user.schema';
-import { UsersService } from 'src/Users/users.service';
+import { User, UserDocument } from '../Users/schemas/user.schema';
+import { UsersService } from '../Users/users.service';
 import * as bcrypt from 'bcrypt';
 import { RegistrAuthDto } from './dto/registr.auth.dto';
 

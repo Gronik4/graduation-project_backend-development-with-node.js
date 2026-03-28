@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ExecutionContext, HttpException, Injectable } from '@nestjs/common';
-import { UsersService } from 'src/Users/users.service';
+import { UsersService } from '../Users/users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { typeId } from 'src/Users/Interfaces/param-id';
 import { TestUrl } from './testUrl';
@@ -46,3 +46,5 @@ export class AuthUserGuard extends AuthGuard('local') {
     return user;
   }
 }
+
+export { AuthGuard };

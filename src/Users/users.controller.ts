@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { UserDocument } from './schemas/user.schema';
 import type { createUserDto } from './Interfaces/dto/createUserDto';
 import type { SearchUserParams } from './Interfaces/SearchUserParams';
-import { AuthUserGuard } from 'src/guards/auth.guard';
+import { AuthUserGuard } from '../guards/auth.guard';
 
 @Controller('api')
 export class UsersController {

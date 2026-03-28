@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
-import { ReservationService } from 'src/Reservation/reservation.service';
+import { ReservationService } from '../Reservation/reservation.service';
 
 @Injectable()
 export class IdReservationGuard implements CanActivate {

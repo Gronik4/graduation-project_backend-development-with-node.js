@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { CanActivate, ExecutionContext, HttpException, Injectable } from '@nestjs/common';
-import { typeId } from 'src/Users/Interfaces/param-id';
-import { UsersService } from 'src/Users/users.service';
+import { typeId } from '../Users/Interfaces/param-id';
+import { UsersService } from '../Users/users.service';
 import { TestUrl } from './testUrl';
 import { SupportRequestService } from 'src/SupportRequest/support-request/support-request.service';
 

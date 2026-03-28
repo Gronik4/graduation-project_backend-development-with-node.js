@@ -10,7 +10,7 @@ import { ReplyMessageClient } from '../Interfaces/ReplyMessageClient';
 import moment from 'moment';
 import 'moment/locale/ru';
 import { GetChatListParams } from '../Interfaces/GetChatListParams';
-import { UsersService } from 'src/Users/users.service';
+import { UsersService } from '../../Users/users.service';
 import { ReplyMessageManager } from '../Interfaces/ReplyMessageManager';
 import { ReplySendMessages } from '../Interfaces/ReplySendMessages';
 import { typeId } from 'src/Users/Interfaces/param-id';

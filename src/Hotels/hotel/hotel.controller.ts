@@ -14,7 +14,7 @@ import { Hotel, HotelDocument } from '../Schemas/hotel.schema';
 import type { UpdateHotelParams } from '../Interfaces/UpdateHotelParams';
 import type { typeId } from 'src/Users/Interfaces/param-id';
 import type { SearchHotelParams } from '../Interfaces/SearchHotelParams';
-import { AuthUserGuard } from 'src/guards/auth.guard';
+import { AuthUserGuard } from '../../guards/auth.guard';
 
 @Controller('/api')
 export class HotelController {

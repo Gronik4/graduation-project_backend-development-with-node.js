@@ -51,3 +51,11 @@
   2. Docker не видит @nestjs/core - Error: Cannot find module '@nestjs/core', хотя в package.json, в dependencies есть: "@nestjs/core": "^11.0.1",
     Решение: в Dockterfile, после COPY --from=builder /usr/app/package*.json . добавил: COPY --from=builder /usr/app/node_modules ./node_modules
     Все заработало!!
+******************************Тестирование**********************************************
+  1. SyntaxError: Cannot use import statement outside a module
+
+      14 | import path, { join } from 'path';
+      15 | import fs from 'fs';
+    > 16 | import { nanoid } from 'nanoid';
+         | ^
+    Решение:  в package.json в jest добавил строку: "extensionsToTreatAsEsm": [".ts"].
